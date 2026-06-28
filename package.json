@@ -2,13 +2,8 @@
   "name": "threads-unfollowers",
   "version": "1.0.0",
   "description": "Find users who unfollowed you on Threads.",
-  "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "devDependencies": {
-    "typescript": "^5.4.5"
+    "build": "node ./scripts/build.js"
   },
   "repository": {
     "type": "git",

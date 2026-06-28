@@ -20,177 +20,50 @@
   }
 
   const DEFAULT_TIMINGS = {
-    scanDelayMin: 700,
-    scanDelayMax: 1500,
-    scanPauseEveryPages: 5,
-    scanPauseMs: 8000,
+    scanDelayMin: 1000,
+    scanDelayMax: 3000,
+    unfollowDelayMin: 1000,
+    unfollowDelayMax: 3000,
+    unfollowPauseEveryUsers: 10,
+    unfollowPauseMs: 10000,
   };
 
-  const PANEL_WIDTH = 380;
   const PANEL_MARGIN = 18;
   const MAX_RETRIES = 3;
 
-  const I18N = {
-    en: {
-      title: 'Threads Unfollower',
-      subtitle: "See who doesn't follow you back",
-      welcomeTitle: 'Ready when you are',
-      welcomeBody:
-        "We'll scan only the people you follow and use Threads' follow-back status to keep the scan fast. Nothing is changed on your account during the scan.",
-      scanBtn: 'Scan now',
-      scanning: 'Scanning',
-      loadingFollowing: 'Loading the people you follow',
-      completed: 'Completed',
-      paused: 'Paused',
-      pause: 'Pause',
-      resume: 'Resume',
-      cancel: 'Cancel',
-      stop: 'Stop',
-      ofTotal: '{current} of {total}',
-      ofUnknown: '{current} so far',
-      scanCompletedToast: '{count} non-followers found',
-      scanFailed: 'Scan failed',
-      retry: 'Try again',
-      goBack: 'Back to results',
-      search: 'Search by name or username',
-      filterVerified: 'Verified',
-      filterPrivate: 'Private',
-      filterShowHidden: 'Hidden users',
-      foundCount: '{count} non-followers',
-      foundOne: '1 non-follower',
-      foundNone: 'Nice — everyone you follow follows you back.',
-      noMatches: 'No users match your filters.',
-      hide: 'Hide',
-      unhide: 'Unhide',
-      hideTooltip: 'Hide from this list',
-      unhideTooltip: 'Show again',
-      openProfile: 'Open profile',
-      copy: 'Copy',
-      copiedToast: 'Copied {count} usernames',
-      settings: 'Settings',
-      settingsTitle: 'Timing settings',
-      settingsBody:
-        'Lower delays make Threads more likely to throttle or block your account. Keep these conservative.',
-      minScanDelay: 'Min scan delay (ms)',
-      maxScanDelay: 'Max scan delay (ms)',
-      scanPauseEvery: 'Long pause every N pages',
-      scanPauseLength: 'Long pause length (ms)',
-      restoreDefaults: 'Restore defaults',
-      save: 'Save',
-      saved: 'Settings saved',
-      cookieMissing: 'Could not read your login cookie. Make sure you are signed in.',
-      csrfMissing: 'Could not read csrftoken cookie.',
-      requestFailed: 'Request failed: {status}',
-      tooManyRequests: 'Threads is rate-limiting requests. Try again later or increase delays in settings.',
-      scanPause: 'Cooldown — {seconds}s',
-      cooldownIn: 'Retry — {seconds}s',
-      nextActionIn: 'Next action — {seconds}s',
-      close: 'Close',
-      minimize: 'Minimize',
-      expand: 'Expand',
-      langCode: 'TR',
-      pillScanning: 'Scanning {current}/{total}',
-      pillResults: '{count} non-followers',
-      pillIdle: 'Open',
-    },
-    tr: {
-      title: 'Threads Takip Etmeyenler',
-      subtitle: 'Seni geri takip etmeyenleri gör',
-      welcomeTitle: 'Hazır olduğunda başlat',
-      welcomeBody:
-        "Sadece takip ettiklerin taranır ve Threads'in geri takip durumuyla hızlıca kontrol edilir. Tarama sırasında hesabında hiçbir şey değişmez.",
-      scanBtn: 'Taramayı başlat',
-      scanning: 'Taranıyor',
-      loadingFollowing: 'Takip ettiklerin yükleniyor',
-      completed: 'Tamamlandı',
-      paused: 'Duraklatıldı',
-      pause: 'Duraklat',
-      resume: 'Devam et',
-      cancel: 'İptal',
-      stop: 'Durdur',
-      ofTotal: '{current} / {total}',
-      ofUnknown: 'Şu ana kadar {current}',
-      scanCompletedToast: '{count} takip etmeyen bulundu',
-      scanFailed: 'Tarama başarısız',
-      retry: 'Tekrar dene',
-      goBack: 'Sonuçlara dön',
-      search: 'İsim veya kullanıcı adı ara',
-      filterVerified: 'Onaylı',
-      filterPrivate: 'Gizli',
-      filterShowHidden: 'Gizlenen kullanıcılar',
-      foundCount: '{count} takip etmeyen',
-      foundOne: '1 takip etmeyen',
-      foundNone: 'Harika — takip ettiğin herkes seni takip ediyor.',
-      noMatches: 'Filtrelerinle eşleşen kullanıcı yok.',
-      hide: 'Gizle',
-      unhide: 'Göster',
-      hideTooltip: 'Bu listeden gizle',
-      unhideTooltip: 'Tekrar göster',
-      openProfile: 'Profili aç',
-      copy: 'Kopyala',
-      copiedToast: '{count} kullanıcı adı kopyalandı',
-      settings: 'Ayarlar',
-      settingsTitle: 'Hız ayarları',
-      settingsBody: "Düşük gecikmeler Threads'in hesabını kısıtlamasına neden olabilir. Yavaş tut.",
-      minScanDelay: 'Min tarama gecikmesi (ms)',
-      maxScanDelay: 'Maks tarama gecikmesi (ms)',
-      scanPauseEvery: 'Her N sayfada uzun mola',
-      scanPauseLength: 'Uzun mola süresi (ms)',
-      restoreDefaults: 'Varsayılana dön',
-      save: 'Kaydet',
-      saved: 'Ayarlar kaydedildi',
-      cookieMissing: 'Giriş çerezi okunamadı. Giriş yaptığından emin ol.',
-      csrfMissing: 'csrftoken çerezi okunamadı.',
-      requestFailed: 'İstek başarısız: {status}',
-      tooManyRequests: 'Threads istekleri kısıtlayabilir. Sonra dene veya ayarlardan gecikmeleri artır.',
-      scanPause: 'Mola — {seconds} sn',
-      cooldownIn: 'Yeniden deneme — {seconds} sn',
-      nextActionIn: 'Sonraki işlem — {seconds} sn',
-      close: 'Kapat',
-      minimize: 'Küçült',
-      expand: 'Aç',
-      langCode: 'EN',
-      pillScanning: 'Taranıyor {current}/{total}',
-      pillResults: '{count} takip etmeyen',
-      pillIdle: 'Aç',
-    },
-  };
-
   const SVG = {
-    minimize:
-      '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="7.25" width="10" height="1.5" rx="0.75" fill="currentColor"/></svg>',
-    close:
-      '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
-    gear: '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zm6.7 2.5a6.7 6.7 0 0 0-.1-1.1l1.4-1.1-1.5-2.6-1.7.7a6.6 6.6 0 0 0-1.9-1.1L10.5 1h-3l-.4 1.8a6.6 6.6 0 0 0-1.9 1.1l-1.7-.7L1.9 5.8 3.3 6.9a6.7 6.7 0 0 0 0 2.2L1.9 10.2l1.5 2.6 1.7-.7a6.6 6.6 0 0 0 1.9 1.1L7.5 15h3l.4-1.8a6.6 6.6 0 0 0 1.9-1.1l1.7.7 1.5-2.6-1.4-1.1c.1-.4.1-.7.1-1.1z"/></svg>',
-    open: '<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3.5" y1="12.5" x2="12.5" y2="3.5"/><polyline points="7.5 3.5 12.5 3.5 12.5 8.5"/></svg>',
-    sparkle:
-      '<svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true"><path fill="currentColor" d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6L12 2zm6 11l1 2.8L22 17l-3 .8L18 21l-1-3.2L14 17l3-1.2 1-2.8z"/></svg>',
-    alert:
-      '<svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2zm0 6 7.5 13h-15L12 8zm-1 4v4h2v-4h-2zm0 5v2h2v-2h-2z"/></svg>',
-    check:
-      '<svg viewBox="0 0 16 16" width="36" height="36" aria-hidden="true"><path fill="currentColor" d="M14 4.5L6 12.5l-4-4L3 7.5l3 3 7-7z"/></svg>',
+    minimize: `<svg viewBox="0 0 16 16" width="12" height="12"><rect x="2" y="7" width="12" height="2" rx="1" fill="#000" opacity="0.7"/></svg>`,
+    close: `<svg viewBox="0 0 16 16" width="12" height="12"><path d="M4 4l8 8M12 4l-8 8" stroke="#000" stroke-width="2" stroke-linecap="round" opacity="0.7"/></svg>`,
+    expand: `<svg viewBox="0 0 16 16" width="12" height="12"><path d="M3 9h4V5H3v4zm6-4v4h4V5H9z" fill="#000" opacity="0.7"/></svg>`,
+    gear: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M0 0h24v24H0z" fill="none" /><path fill="currentColor" d="m9.25 22l-.4-3.2q-.325-.125-.612-.3t-.563-.375L4.7 19.375l-2.75-4.75l2.575-1.95Q4.5 12.5 4.5 12.338v-.675q0-.163.025-.338L1.95 9.375l2.75-4.75l2.975 1.25q.275-.2.575-.375t.6-.3l.4-3.2h5.5l.4 3.2q.325.125.613.3t.562.375l2.975-1.25l2.75 4.75l-2.575 1.95q.025.175.025.338v.674q0 .163-.05.338l2.575 1.95l-2.75 4.75l-2.95-1.25q-.275.2-.575.375t-.6.3l-.4 3.2zm2.8-6.5q1.45 0 2.475-1.025T15.55 12t-1.025-2.475T12.05 8.5q-1.475 0-2.488 1.025T8.55 12t1.013 2.475T12.05 15.5" /></svg>`,
+    check: `<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="13.5 4.5 6 12 2.5 8.5"/></svg>`,
+    personRemove: `<svg viewBox="0 0 24 24" width="48" height="48"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M15 8.5a5 5 0 1 0-10 0a5 5 0 0 0 10 0M14 19h7" /><path d="M3 20.5a7 7 0 0 1 11-5.745" /></g></svg>`,
+    personRemoveSmall: `<svg viewBox="0 0 24 24" width="16" height="16" style="display:inline-block;vertical-align:middle;"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M15 8.5a5 5 0 1 0-10 0a5 5 0 0 0 10 0M14 19h7" /><path d="M3 20.5a7 7 0 0 1 11-5.745" /></g></svg>`,
+    warning: `<svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`,
+    verified: `<svg viewBox="0 0 24 24" width="16" height="16" fill="#0095f6" style="display:inline-block;vertical-align:middle;margin:0 2px;"><path d="M0 0h24v24H0z" fill="none" /><path fill="currentColor" d="M10.95 12.7L9.5 11.275Q9.225 11 8.813 11t-.713.3q-.275.275-.275.7t.275.7l2.15 2.15q.3.3.7.3t.7-.3l4.25-4.25q.3-.3.287-.7t-.287-.7q-.3-.3-.712-.312t-.713.287zm-2.8 9.05L6.7 19.3l-2.75-.6q-.375-.075-.6-.387t-.175-.688L3.45 14.8l-1.875-2.15q-.25-.275-.25-.65t.25-.65L3.45 9.2l-.275-2.825q-.05-.375.175-.688t.6-.387l2.75-.6l1.45-2.45q.2-.325.55-.438t.7.038l2.6 1.1l2.6-1.1q.35-.15.7-.038t.55.438L17.3 4.7l2.75.6q.375.075.6.388t.175.687L20.55 9.2l1.875 2.15q.25.275.25.65t-.25.65L20.55 14.8l.275 2.825q.05.375-.175.688t-.6.387l-2.75.6l-1.45 2.45q-.2.325-.55.438t-.7-.038l-2.6-1.1l-2.6 1.1q-.35.15-.7.038t-.55-.438" /></svg>`,
+    chevronRight: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><polyline points="9 18 15 12 9 6"/></svg>`,
+    timer: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+    reload: `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`
   };
 
   const persisted = loadStored();
 
   const state = {
-    mode: 'idle', // 'idle', 'scanning', 'scanDone', 'results'
-    scanPaused: false,
+    mode: 'idle', // 'idle', 'scanning', 'unfollowing', 'stopped', 'completed', 'results', 'settings'
+    prevMode: 'idle',
     scanCancelled: false,
-    progress: { current: 0, total: 0, label: 'scanning', note: '' },
+    progress: { current: 0, total: 0, label: 'Scanning', note: '' },
     waitUntil: 0,
     waitReason: '',
     users: [],
-    hidden: new Set(persisted.hidden || []),
-    search: '',
+    selected: new Set(),
     filters: persisted.filters || {
-      verified: true,
-      showHidden: false,
+      verified: false,
     },
     timings: { ...DEFAULT_TIMINGS, ...(persisted.timings || {}) },
     panelPos: persisted.panelPos || null,
     minimized: Boolean(persisted.minimized),
-    language: persisted.language === 'tr' ? 'tr' : 'en',
+    fullscreen: Boolean(persisted.fullscreen),
     error: '',
   };
 
@@ -211,22 +84,1111 @@
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({
-          hidden: [...state.hidden],
           timings: state.timings,
           filters: state.filters,
           panelPos: state.panelPos,
           minimized: state.minimized,
-          language: state.language,
+          fullscreen: state.fullscreen,
         })
       );
     } catch {}
   }
 
-  function t(key, vars) {
-    const dict = I18N[state.language] || I18N.en;
-    const template = dict[key] ?? I18N.en[key] ?? key;
-    if (!vars) return template;
-    return template.replace(/\{(\w+)\}/g, (_, name) => vars[name] ?? '');
+  function setMinimized(val) {
+    state.minimized = val;
+    persist();
+    renderShell();
+  }
+
+  function pillLabel() {
+    if (state.mode === 'scanning') return 'Scanning...';
+    if (state.mode === 'unfollowing') return 'Unfollowing...';
+    if (state.error) return 'Error';
+    return 'Open';
+  }
+
+  function pillStateClass() {
+    if (state.mode === 'scanning' || state.mode === 'unfollowing') return 'iu-pill-dot--active';
+    if (state.error) return 'iu-pill-dot--error';
+    return '';
+  }
+
+  function renderBody() {
+    const body = document.querySelector(`#${APP_ID} [data-body]`);
+    if (!body) return;
+
+    if (state.mode === 'idle') {
+      body.innerHTML = renderWelcomeView();
+      bindWelcomeEvents(body);
+    } else if (state.mode === 'settings') {
+      body.innerHTML = renderSettingsView();
+      bindSettingsEvents(body);
+    } else {
+      body.innerHTML = renderResultsView();
+      bindResultsEvents(body);
+    }
+
+    if (state.mode === 'scanning' || state.mode === 'unfollowing') startCountdown();
+    else stopCountdown();
+  }
+
+  function renderWelcomeView() {
+    if (state.error) {
+      return `
+        <div class="iu-welcome">
+          <div class="iu-welcome-icon iu-welcome-icon--error">
+            ${SVG.warning}
+          </div>
+          <div class="iu-welcome-text">
+            <h2>Scan Failed</h2>
+            <p class="iu-welcome-description">${escapeHTML(state.error)}</p>
+          </div>
+          <div class="iu-welcome-action">
+            <button type="button" class="iu-btn iu-btn-welcome" data-action="scan">Try Again</button>
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="iu-welcome">
+        <div class="iu-welcome-icon">
+          ${SVG.personRemove}
+        </div>
+        <div class="iu-welcome-text">
+          <h2>Threads<br>Unfollowers</h2>
+          <p class="iu-welcome-description">Identify who doesn't follow you back on Threads and clean up your profile with ease and safety.</p>
+        </div>
+        <div class="iu-welcome-action">
+          <button type="button" class="iu-btn iu-btn-welcome" data-action="scan">Scan Now</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function bindWelcomeEvents(body) {
+    body.querySelector("[data-action='scan']")?.addEventListener('click', startScan);
+  }
+
+  function renderSettingsView() {
+    return `
+      <div class="iu-settings">
+        <div class="iu-settings-head">
+          <h2>Configuration</h2>
+          <p>Manage scan intervals.</p>
+          <button type="button" class="iu-reset-btn" data-action="restore-defaults">Reset All</button>
+        </div>
+        
+        <div class="iu-settings-form">
+          <div class="iu-settings-section-header">
+            <span class="iu-svg-icon text-primary">${SVG.timer}</span>
+            <h3>RATE LIMITING (MILLISECONDS)</h3>
+          </div>
+          
+          <div class="iu-settings-field">
+            <div class="iu-settings-label-row">
+              <label>Min Scan Delay</label>
+              <span class="iu-settings-val" data-val="scanDelayMin">${state.timings.scanDelayMin}ms</span>
+            </div>
+            <input type="range" min="500" max="30000" step="100" data-setting="scanDelayMin" value="${state.timings.scanDelayMin}">
+            <p class="iu-settings-help">Minimum wait time between profile requests.</p>
+          </div>
+
+          <div class="iu-settings-field">
+            <div class="iu-settings-label-row">
+              <label>Max Scan Delay</label>
+              <span class="iu-settings-val" data-val="scanDelayMax">${state.timings.scanDelayMax}ms</span>
+            </div>
+            <input type="range" min="1000" max="60000" step="500" data-setting="scanDelayMax" value="${state.timings.scanDelayMax}">
+            <p class="iu-settings-help">Maximum random jitter for request intervals.</p>
+          </div>
+
+          <div class="iu-settings-field">
+            <div class="iu-settings-label-row">
+              <label>Min Unfollow Delay</label>
+              <div class="iu-settings-num-input-wrapper">
+                <input type="number" min="1000" step="500" data-setting="unfollowDelayMin" value="${state.timings.unfollowDelayMin}">
+                <span>ms</span>
+              </div>
+            </div>
+            <p class="iu-settings-help">Safe interval before triggering an unfollow action.</p>
+          </div>
+
+          <div class="iu-settings-field">
+            <div class="iu-settings-label-row">
+              <label>Max Unfollow Delay</label>
+              <div class="iu-settings-num-input-wrapper">
+                <input type="number" min="2000" step="500" data-setting="unfollowDelayMax" value="${state.timings.unfollowDelayMax}">
+                <span>ms</span>
+              </div>
+            </div>
+            <p class="iu-settings-help">Maximum wait time to mimic human behavior.</p>
+          </div>
+
+          <div class="iu-settings-field">
+            <div class="iu-settings-label-row">
+              <div class="iu-settings-label-stack">
+                <label>Long Delay</label>
+                <span class="iu-settings-badge-green">Multiple actions required long delay</span>
+              </div>
+              <span class="iu-settings-val" data-val="unfollowPauseMs">${state.timings.unfollowPauseMs}ms</span>
+            </div>
+            <input type="range" min="10000" max="1800000" step="10000" data-setting="unfollowPauseMs" value="${state.timings.unfollowPauseMs}">
+            <p class="iu-settings-help">Wait time after every 10 unfollows to avoid shadowbans.</p>
+          </div>
+        </div>
+
+        <div class="iu-settings-actions">
+          <button type="button" class="iu-btn-save" data-action="save-settings">Save Changes</button>
+          <button type="button" class="iu-btn-discard" data-action="cancel-settings">Discard</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function bindSettingsEvents(body) {
+    body.querySelectorAll('input[type="range"]').forEach(slider => {
+      slider.addEventListener('input', e => {
+        const name = slider.getAttribute('data-setting');
+        const display = body.querySelector(`[data-val="${name}"]`);
+        if (display) {
+          display.textContent = `${e.target.value}ms`;
+        }
+      });
+    });
+
+    body.querySelector("[data-action='save-settings']")?.addEventListener('click', () => {
+      let valid = true;
+      body.querySelectorAll('[data-setting]').forEach(input => {
+        const key = input.getAttribute('data-setting');
+        const val = Number(input.value);
+        if (Number.isFinite(val) && val >= 0) {
+          state.timings[key] = val;
+        } else {
+          valid = false;
+        }
+      });
+      if (!valid) {
+        toast('Please enter valid non-negative numbers');
+        return;
+      }
+      persist();
+      toast('Settings saved');
+      state.mode = state.prevMode;
+      renderShell();
+    });
+
+    body.querySelector("[data-action='cancel-settings']")?.addEventListener('click', () => {
+      state.mode = state.prevMode;
+      renderShell();
+    });
+
+    body.querySelector("[data-action='restore-defaults']")?.addEventListener('click', () => {
+      Object.assign(state.timings, DEFAULT_TIMINGS);
+      renderBody();
+      toast('Default timings restored');
+    });
+  }
+
+  function statusClass() {
+    if (state.mode === 'scanning' || state.mode === 'unfollowing') return 'active';
+    if (state.mode === 'stopped') return 'stopped';
+    if (state.mode === 'completed') return 'completed';
+    return 'idle';
+  }
+
+  function statusTitle() {
+    if (state.mode === 'scanning') return 'Scanning';
+    if (state.mode === 'unfollowing') return 'Unfollowing';
+    if (state.mode === 'stopped') return 'Stopped';
+    if (state.mode === 'completed') return 'Completed';
+    return 'Idle';
+  }
+
+  function statusDetails() {
+    if (state.mode === 'scanning') {
+      return `${state.progress.current} users scanned.`;
+    }
+    if (state.mode === 'unfollowing') {
+      return `@${escapeHTML(state.progress.note || '')} (${state.progress.current} / ${state.progress.total})`;
+    }
+    if (state.mode === 'stopped') {
+      return 'Process stopped by user.';
+    }
+    if (state.mode === 'completed') {
+      return state.progress.note || 'Process completed successfully.';
+    }
+    return '';
+  }
+
+  function showStopButton() {
+    return state.mode === 'scanning' || state.mode === 'unfollowing';
+  }
+
+  function showReloadButton() {
+    return state.mode === 'completed' || state.mode === 'stopped';
+  }
+
+  function isAllSelected() {
+    const display = getDisplayUsers();
+    if (!display.length) return false;
+    return display.every(user => state.selected.has(user.id));
+  }
+
+  function renderResultsView() {
+    const display = getDisplayUsers();
+    const selectedCount = display.filter(u => state.selected.has(u.id)).length;
+
+    return `
+      <div class="iu-results">
+        <div class="iu-status-card">
+          <div class="iu-status-row">
+            <div class="iu-status-left">
+              <span class="iu-status-dot iu-status-dot--${statusClass()}"></span>
+              <span class="iu-status-title">${statusTitle()}</span>
+            </div>
+            <div class="iu-status-right" data-countdown></div>
+          </div>
+          <div class="iu-status-details-row">
+            <span class="iu-status-details">${statusDetails()}</span>
+            ${showStopButton() ? `<button type="button" class="iu-status-btn-stop" data-action="stop-process">Stop</button>` : ''}
+            ${showReloadButton() ? `<button type="button" class="iu-status-btn-reload" data-action="rescan" aria-label="Rescan" title="Rescan">${SVG.reload}</button>` : ''}
+          </div>
+        </div>
+
+        <section class="iu-filter-section">
+          <button type="button" class="iu-filter-verified ${state.filters.verified ? 'iu-filter-verified--active' : ''}" data-action="toggle-verified">
+            ${SVG.verified}
+            <span>Verified Only</span>
+          </button>
+        </section>
+
+        <div class="iu-list-header-bar">
+          <button type="button" class="iu-select-all-btn" data-action="toggle-select-all">
+            ${isAllSelected() ? 'Deselect All' : 'Select All'}
+          </button>
+          <span class="iu-list-header-info">${display.length} non-followers found</span>
+        </div>
+
+        <div class="iu-list" data-list>${renderUserList(display)}</div>
+
+        <div class="iu-fab-container">
+          <button type="button" class="iu-fab-btn" data-action="unfollow-selected" ${selectedCount > 0 ? '' : 'disabled'}>
+            ${SVG.personRemoveSmall}
+            <span>Unfollow Selected</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderUserList(display) {
+    if (!display.length) {
+      if (state.mode === 'scanning') {
+        return `<div class="iu-list-empty">Loading the people you follow...</div>`;
+      }
+      return `<div class="iu-list-empty">No users match your filters.</div>`;
+    }
+    return display.map(renderUserRow).join('');
+  }
+
+  function renderUserRow(user) {
+    const verifiedIcon = user.is_verified
+      ? `<span>${SVG.verified}</span>`
+      : '';
+
+    return `
+      <div class="iu-row" data-row="${escapeAttr(user.id)}">
+        <label class="iu-row-checkbox">
+          <input type="checkbox" data-select="${escapeAttr(user.id)}" ${state.selected.has(user.id) ? 'checked' : ''}>
+          <span class="iu-checkbox-custom">${SVG.check}</span>
+        </label>
+        <img class="iu-avatar" src="${escapeAttr(user.profile_pic_url || '')}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+        <div class="iu-row-text">
+          <div class="iu-row-name-wrapper">
+            <span class="iu-row-name">
+              <a href="https://www.threads.com/@${encodeURIComponent(user.username)}" target="_blank" rel="noopener noreferrer">@${escapeHTML(user.username)}</a>
+            </span>
+            ${verifiedIcon}
+          </div>
+          <div class="iu-row-sub">${escapeHTML(user.full_name || '')}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function bindResultsEvents(body) {
+    body.querySelector("[data-action='toggle-verified']")?.addEventListener('click', () => {
+      state.filters.verified = !state.filters.verified;
+      persist();
+      renderBody();
+    });
+
+    body.querySelector("[data-action='toggle-select-all']")?.addEventListener('click', () => {
+      if (isAllSelected()) {
+        clearSelection();
+      } else {
+        selectAllVisible();
+      }
+      renderBody();
+    });
+
+    body.addEventListener('click', event => {
+      const row = event.target.closest('.iu-row');
+      if (!row) return;
+
+      if (event.target.closest('a')) {
+        return;
+      }
+
+      const checkbox = row.querySelector('input[data-select]');
+      if (!checkbox) return;
+
+      if (!event.target.closest('.iu-row-checkbox')) {
+        checkbox.checked = !checkbox.checked;
+      }
+
+      const id = checkbox.getAttribute('data-select');
+      if (id) {
+        if (checkbox.checked) state.selected.add(id);
+        else state.selected.delete(id);
+      }
+
+      const display = getDisplayUsers();
+      const selectedCount = display.filter(u => state.selected.has(u.id)).length;
+      const fab = body.querySelector("[data-action='unfollow-selected']");
+      if (fab) {
+        fab.disabled = selectedCount === 0;
+      }
+
+      const selectAllBtn = body.querySelector("[data-action='toggle-select-all']");
+      if (selectAllBtn) {
+        selectAllBtn.textContent = isAllSelected() ? 'Deselect All' : 'Select All';
+      }
+    });
+
+    body.querySelector("[data-action='unfollow-selected']")?.addEventListener('click', startUnfollowSelected);
+    
+    body.querySelector("[data-action='stop-process']")?.addEventListener('click', () => {
+      state.scanCancelled = true;
+    });
+
+    body.querySelector("[data-action='rescan']")?.addEventListener('click', () => {
+      startScan();
+    });
+  }
+
+  function selectAllVisible() {
+    getDisplayUsers().forEach(user => state.selected.add(user.id));
+  }
+
+  function clearSelection() {
+    state.selected.clear();
+  }
+
+  function getDisplayUsers() {
+    return state.users
+      .filter(u => !u.follows_viewer)
+      .filter(u => !state.filters.verified || u.is_verified)
+      .sort((a, b) => a.username.localeCompare(b.username));
+  }
+
+  let cachedTokens = null;
+
+  function getPageTokens() {
+    if (cachedTokens) return cachedTokens;
+
+    const tokens = {
+      webSessionId: '',
+      jazoest: '',
+      fbid: '',
+      username: '',
+      followingCount: 0,
+      lsd: '',
+      fbDtsg: '',
+      __req: '',
+      __hs: '',
+      __ccg: '',
+      __rev: '',
+      __s: '',
+      __hsi: '',
+      __dyn: '',
+      __spin_r: '',
+    };
+
+    if (window.LSD?.token) tokens.lsd = window.LSD.token;
+    if (window.__LSD__?.token) tokens.lsd = window.__LSD__.token;
+    if (window.DTSGInitData?.token) tokens.fbDtsg = window.DTSGInitData.token;
+    if (window.__DTSGInitData__?.token) tokens.fbDtsg = window.__DTSGInitData__.token;
+
+    const scripts = document.querySelectorAll('script');
+    const metaPatterns = {
+      __req: [/"__req":"([^"]+)"/, /__req=([^&]+)/],
+      __hs: [/"__hs":"([^"]+)"/, /__hs=([^&]+)/],
+      __ccg: [/"__ccg":"([^"]+)"/, /__ccg=([^&]+)/],
+      __rev: [/"__rev":"([^"]+)"/, /__rev=([^&]+)/],
+      __s: [/"__s":"([^"]+)"/, /__s=([^&]+)/],
+      __hsi: [/"__hsi":"([^"]+)"/, /__hsi=([^&]+)/],
+      __dyn: [/"__dyn":"([^"]+)"/, /__dyn=([^&]+)/],
+      __spin_r: [/"__spin_r":"([^"]+)"/, /__spin_r=([^&]+)/],
+    };
+
+    const fbDtsgPattern = /NAf[a-zA-Z0-9_\-\/]+(?::|%3A)\d+(?::|%3A)\d+/;
+
+    for (const script of scripts) {
+      const text = script.textContent || '';
+      if (!text) continue;
+
+      if (!tokens.webSessionId) {
+        const match = text.match(/"web_session_id":"([^"]+)"/) || text.match(/"x-web-session-id":"([^"]+)"/);
+        if (match) tokens.webSessionId = match[1];
+      }
+      if (!tokens.jazoest) {
+        const match = text.match(/jazoest=([0-9]+)/) || text.match(/"jazoest":"([^"]+)"/);
+        if (match) tokens.jazoest = match[1];
+      }
+      if (!tokens.fbid) {
+        const match = text.match(/"ACCOUNT_ID":"([^"]+)"/) || text.match(/"USER_ID":"([^"]+)"/) || text.match(/"fbid":"([^"]+)"/);
+        if (match && match[1] && match[1] !== '0') tokens.fbid = match[1];
+      }
+      if (!tokens.username) {
+        const match = text.match(/"username":"([^"]+)"/);
+        if (match) tokens.username = match[1];
+      }
+      if (!tokens.followingCount) {
+        const match = text.match(/"following_count":\s*(\d+)/);
+        if (match) tokens.followingCount = parseInt(match[1], 10);
+      }
+      if (!tokens.lsd) {
+        const match = text.match(/"LSD",\[\],{"token":"([^"]+)"}/) || text.match(/"lsd":"([^"]+)"/);
+        if (match) tokens.lsd = match[1];
+      }
+      if (!tokens.fbDtsg) {
+        const match = text.match(fbDtsgPattern) || text.match(/"DTSGInitData",\[\],{"token":"([^"]+)"}/) || text.match(/"fb_dtsg":"([^"]+)"/);
+        if (match) tokens.fbDtsg = decodeURIComponent(match[1] || match[0]);
+      }
+
+      for (const key in metaPatterns) {
+        if (!tokens[key]) {
+          for (const pattern of metaPatterns[key]) {
+            const match = text.match(pattern);
+            if (match) {
+              tokens[key] = match[1];
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    const html = document.body?.innerHTML || '';
+    if (html) {
+      if (!tokens.lsd) {
+        const match = html.match(/"LSD",\[\],{"token":"([^"]+)"}/) || html.match(/"lsd":"([^"]+)"/) || html.match(/name="lsd" value="([^"]+)"/);
+        if (match) tokens.lsd = match[1];
+      }
+      if (!tokens.fbDtsg) {
+        const match = html.match(fbDtsgPattern) || html.match(/"DTSGInitData",\[\],{"token":"([^"]+)"}/) || html.match(/"fb_dtsg":"([^"]+)"/) || html.match(/name="fb_dtsg" value="([^"]+)"/);
+        if (match) tokens.fbDtsg = decodeURIComponent(match[1] || match[0]);
+      }
+      for (const key in metaPatterns) {
+        if (!tokens[key]) {
+          for (const pattern of metaPatterns[key]) {
+            const match = html.match(pattern);
+            if (match) {
+              tokens[key] = match[1];
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    cachedTokens = tokens;
+    return tokens;
+  }
+
+  function getWebSessionId() {
+    return getPageTokens().webSessionId;
+  }
+
+  function getJazoest() {
+    return getPageTokens().jazoest;
+  }
+
+  function getFbid(viewerId) {
+    return getPageTokens().fbid || viewerId || '0';
+  }
+
+  function getLSDToken() {
+    return getPageTokens().lsd || null;
+  }
+
+  function getFbDtsg() {
+    return getPageTokens().fbDtsg || null;
+  }
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+    return null;
+  }
+
+  function getLoggedInUsername() {
+    const link = document.querySelector('a[href^="/@"]');
+    if (link) return link.getAttribute('href').replace('/@', '').split('?')[0];
+    return getPageTokens().username || null;
+  }
+
+  function cleanJsonText(text) {
+    let cleaned = text.trim();
+    if (cleaned.startsWith('for (;;);')) return cleaned.substring(9);
+    if (cleaned.startsWith('while (1);')) return cleaned.substring(10);
+    if (cleaned.startsWith(")]}'")) return cleaned.substring(4);
+    return cleaned;
+  }
+
+  async function parseResponse(response) {
+    const text = await response.text();
+    const cleaned = cleanJsonText(text);
+
+    try {
+      return JSON.parse(cleaned);
+    } catch (e) {
+      const lines = cleaned.split('\n');
+      for (const line of lines) {
+        try {
+          const parsed = JSON.parse(cleanJsonText(line));
+          if (parsed?.data) return parsed;
+        } catch (err) {}
+      }
+      throw e;
+    }
+  }
+
+  function parseRetryAfter(value) {
+    if (!value) return 0;
+    const seconds = Number(value);
+    if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000);
+    const date = Date.parse(value);
+    if (!Number.isNaN(date)) return Math.max(0, date - Date.now());
+    return 0;
+  }
+
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, Math.max(0, ms)));
+  }
+
+  function randomBetween(min, max) {
+    const lo = Math.min(min, max);
+    const hi = Math.max(min, max);
+    return Math.floor(Math.random() * (hi - lo + 1)) + lo;
+  }
+
+  async function sleepWithCountdown(ms, reasonKey) {
+    state.waitUntil = Date.now() + ms;
+    state.waitReason = reasonKey;
+    updateCountdownDOM();
+    const start = Date.now();
+    while (Date.now() - start < ms) {
+      if (state.scanCancelled) break;
+      await sleep(Math.min(250, ms - (Date.now() - start)));
+    }
+    state.waitUntil = 0;
+    state.waitReason = '';
+    updateCountdownDOM();
+  }
+
+  async function fetchWithRetry(url, options, parseJson = true) {
+    let attempt = 0;
+    while (true) {
+      try {
+        const response = await fetch(url, options);
+        if (response.ok) {
+          if (parseJson) {
+            const json = await parseResponse(response);
+            if (json?.errors && json.errors.length > 0) {
+              throw new Error(json.errors[0].message || 'GraphQL execution error');
+            }
+            return json;
+          }
+          return response;
+        }
+
+        if (response.status === 429 || (response.status >= 500 && response.status < 600)) {
+          if (attempt >= MAX_RETRIES) {
+            throw new Error(response.status === 429 ? 'Rate-limited by Threads. Please try again later.' : `HTTP error ${response.status}`);
+          }
+          const retryAfter = parseRetryAfter(response.headers.get('retry-after'));
+          const wait = retryAfter || Math.min(60000, 3000 * Math.pow(2, attempt));
+          await sleepWithCountdown(wait, 'scanPause');
+          attempt += 1;
+          continue;
+        }
+        throw new Error(`Request failed with HTTP status ${response.status}`);
+      } catch (error) {
+        if (state.scanCancelled) throw new Error('Stopped by user');
+        if (attempt >= MAX_RETRIES) throw error;
+        attempt += 1;
+        await sleep(2000);
+      }
+    }
+  }
+
+  async function startScan() {
+    state.error = '';
+    state.mode = 'scanning';
+    state.scanCancelled = false;
+    state.users = [];
+    state.selected.clear();
+    state.progress = {
+      current: 0,
+      total: 0,
+      label: 'Scanning',
+      note: '',
+    };
+    renderBody();
+
+    try {
+      const viewerId = getCookie('ds_user_id');
+      if (!viewerId) throw new Error('Could not read login cookie. Make sure you are signed in.');
+      const csrf = getCookie('csrftoken');
+      if (!csrf) throw new Error('csrftoken cookie is missing.');
+
+      const username = getLoggedInUsername();
+      log('Found logged in username:', username);
+      const totalFollowing = await getFollowingCount(username, viewerId);
+      log('Found total following count:', totalFollowing);
+
+      state.progress.total = totalFollowing;
+      updateProgressDOM();
+
+      const onPage = (results, totalGuess) => {
+        state.progress = {
+          current: results.length,
+          total: totalGuess || totalFollowing || 0,
+          label: 'Scanning',
+          note: '',
+        };
+        updateProgressDOM();
+      };
+
+      const following = await fetchFollowingWithBackStatus(viewerId, onPage, totalFollowing);
+      if (state.scanCancelled) {
+        state.users = following;
+        state.mode = 'stopped';
+        state.scanCancelled = false;
+        renderBody();
+        return;
+      }
+      state.users = following;
+      state.mode = 'completed';
+      const nonFollowers = state.users.filter(u => !u.follows_viewer).length;
+      state.progress.note = `Scan completed. ${nonFollowers} non-followers found.`;
+      toast(`${nonFollowers} non-followers found`);
+      renderBody();
+    } catch (error) {
+      console.error('[tu] scan failed:', error);
+      state.error = error?.message || String(error) || 'Scan failed';
+      state.mode = 'idle';
+      renderBody();
+    }
+  }
+
+  async function fetchFollowingCount(username) {
+    if (!username) return 0;
+    try {
+      const response = await fetch(location.origin + '/@' + username);
+      if (!response.ok) return 0;
+      const html = await response.text();
+      const match = html.match(/"following_count":\s*(\d+)/) || html.match(/"following":\s*\{\s*"count":\s*(\d+)/);
+      if (match) {
+        return parseInt(match[1], 10);
+      }
+    } catch (e) {
+      log('Failed to fetch following count:', e);
+    }
+    return 0;
+  }
+
+  async function getFollowingCount(username, userId) {
+    const scripts = document.querySelectorAll('script');
+    for (const script of scripts) {
+      const text = script.textContent || '';
+      if (text.includes(userId)) {
+        const match = text.match(/"following_count":\s*(\d+)/);
+        if (match) return parseInt(match[1], 10);
+      }
+    }
+    if (username) {
+      return fetchFollowingCount(username);
+    }
+    return 0;
+  }
+
+  function normalizeUser(raw) {
+    return {
+      id: String(raw.id || raw.pk || raw.pk_id || ''),
+      username: String(raw.username || ''),
+      full_name: String(raw.full_name || ''),
+      profile_pic_url: String(raw.profile_pic_url || raw.profile_pic_url_hd || ''),
+      is_verified: Boolean(raw.is_verified),
+      is_private: Boolean(raw.text_post_app_is_private ?? raw.is_private),
+      follows_viewer: Boolean(raw.friendship_status?.followed_by),
+    };
+  }
+
+  function dedupe(list) {
+    const seen = new Set();
+    return list.filter(u => {
+      if (!u.id || seen.has(u.id)) return false;
+      seen.add(u.id);
+      return true;
+    });
+  }
+
+  async function fetchFollowingWithBackStatus(viewerId, onPage, initialTotal = 0) {
+    const results = [];
+    let cursor = '';
+    let page = 0;
+    let totalGuess = initialTotal;
+
+    const csrf = getCookie('csrftoken');
+    if (!csrf) throw new Error('csrftoken cookie is missing.');
+    const pageTokens = getPageTokens();
+
+    while (true) {
+      if (state.scanCancelled) {
+        return results;
+      }
+
+      const isFirst = page === 0;
+      const docId = isFirst ? '27111011515218333' : '27033450226310257';
+      const friendlyName = isFirst ? 'BarcelonaFriendshipsFollowingTabQuery' : 'BarcelonaFriendshipsFollowingTabRefetchableQuery';
+
+      const variables = isFirst
+        ? {
+            first: 24,
+            userID: viewerId,
+            __relay_internal__pv__BarcelonaIsInternalUserrelayprovider: false,
+            __relay_internal__pv__BarcelonaIsLoggedInrelayprovider: true,
+            __relay_internal__pv__BarcelonaIsCrawlerrelayprovider: false,
+            __relay_internal__pv__BarcelonaShouldShowFediverseListsrelayprovider: true,
+          }
+        : {
+            after: cursor,
+            first: 16,
+            id: viewerId,
+            __relay_internal__pv__BarcelonaIsInternalUserrelayprovider: false,
+            __relay_internal__pv__BarcelonaIsLoggedInrelayprovider: true,
+            __relay_internal__pv__BarcelonaIsCrawlerrelayprovider: false,
+          };
+
+      const headers = {
+        accept: '*/*',
+        'content-type': 'application/x-www-form-urlencoded',
+        'x-asbd-id': '359341',
+        'x-csrftoken': csrf,
+        'x-fb-friendly-name': friendlyName,
+        'x-fb-lsd': pageTokens.lsd || '',
+        'x-ig-app-id': '238260118697367',
+        'x-requested-with': 'XMLHttpRequest',
+      };
+
+      const bodyParams = new URLSearchParams();
+      bodyParams.append('lsd', pageTokens.lsd || '');
+      if (pageTokens.fbDtsg) bodyParams.append('fb_dtsg', pageTokens.fbDtsg);
+      bodyParams.append('av', pageTokens.fbid || viewerId || '0');
+      bodyParams.append('__user', '0');
+      bodyParams.append('__a', '1');
+      bodyParams.append('fb_api_caller_class', 'RelayModern');
+      bodyParams.append('fb_api_req_friendly_name', friendlyName);
+      bodyParams.append('variables', JSON.stringify(variables));
+      bodyParams.append('doc_id', docId);
+
+      const json = await fetchWithRetry(location.origin + '/graphql/query', {
+        method: 'POST',
+        credentials: 'include',
+        headers,
+        body: bodyParams.toString(),
+      });
+
+      const userObj = json.data?.fetch__XDTUserDict || json.data?.user || json.data?.node;
+      const edge = userObj?.following;
+      if (!edge?.edges) {
+        throw new Error('Response format is invalid or scan was blocked.');
+      }
+
+      const users = edge.edges.map(item => normalizeUser(item.node)).filter(u => u.id && u.username);
+      results.push(...users);
+      state.users = dedupe(results);
+
+      onPage(state.users, totalGuess);
+
+      cursor = edge.page_info?.end_cursor || '';
+      page += 1;
+
+      if (!edge.page_info?.has_next_page || !cursor) {
+        break;
+      }
+
+      const nextDelay = randomBetween(state.timings.scanDelayMin, state.timings.scanDelayMax);
+      await sleepWithCountdown(nextDelay, 'nextActionIn');
+    }
+    return dedupe(results);
+  }
+
+  async function startUnfollowSelected() {
+    const selectedUsers = state.users.filter(
+      user => !user.follows_viewer && state.selected.has(user.id)
+    );
+    if (!selectedUsers.length) return;
+
+    const csrf = getCookie('csrftoken');
+    if (!csrf) throw new Error('csrftoken cookie is missing.');
+    const pageTokens = getPageTokens();
+
+    state.mode = 'unfollowing';
+    state.scanCancelled = false;
+    state.progress = {
+      current: 0,
+      total: selectedUsers.length,
+      label: 'Unfollowing',
+      note: selectedUsers[0]?.username || '',
+    };
+    renderBody();
+
+    let completedCount = 0;
+    for (let index = 0; index < selectedUsers.length; index += 1) {
+      const user = selectedUsers[index];
+      if (state.scanCancelled) break;
+
+      state.progress = {
+        current: index + 1,
+        total: selectedUsers.length,
+        label: 'Unfollowing',
+        note: user.username,
+      };
+      updateProgressDOM();
+
+      try {
+        await unfollowUser(user, {
+          csrf,
+          lsdToken: pageTokens.lsd,
+          fbDtsg: pageTokens.fbDtsg,
+          webSessionId: pageTokens.webSessionId,
+          viewerFbid: pageTokens.fbid || '0',
+        });
+        state.selected.delete(user.id);
+        state.users = state.users.filter(u => u.id !== user.id);
+        completedCount += 1;
+      } catch (error) {
+        console.error('[tu] unfollow failed:', error);
+        toast(`Failed to unfollow @${user.username}: ${error.message || error}`);
+        break;
+      }
+
+      if (index < selectedUsers.length - 1 && !state.scanCancelled) {
+        const delay = randomBetween(state.timings.unfollowDelayMin, state.timings.unfollowDelayMax);
+        await sleepWithCountdown(delay, 'nextActionIn');
+        if (
+          state.timings.unfollowPauseEveryUsers > 0 &&
+          (index + 1) % state.timings.unfollowPauseEveryUsers === 0
+        ) {
+          await sleepWithCountdown(state.timings.unfollowPauseMs, 'scanPause');
+        }
+      }
+    }
+
+    if (state.scanCancelled) {
+      state.mode = 'stopped';
+    } else {
+      state.mode = 'completed';
+      state.progress.note = `Successfully unfollowed ${completedCount} accounts.`;
+      toast(`Unfollowed ${completedCount} accounts.`);
+    }
+    state.scanCancelled = false;
+    renderBody();
+  }
+
+  async function unfollowUser(user, tokens) {
+    const pageTokens = getPageTokens();
+    const variables = JSON.stringify({
+      target_user_id: user.id,
+      media_id_attribution: null,
+      container_module: 'ig_text_feed_profile',
+      ranking_info_token: null,
+      barcelona_source_quote_post_id: null,
+      barcelona_source_reply_id: null,
+    });
+
+    const requestMeta = {
+      lsd: tokens.lsdToken || pageTokens.lsd || '',
+      av: tokens.viewerFbid || pageTokens.fbid || '0',
+      __user: '0',
+      __a: '1',
+      __req: pageTokens.__req || '4g',
+      __hs: pageTokens.__hs || '20631.HYP%3Abarcelona_web_pkg.2.1...0',
+      dpr: '2',
+      __ccg: pageTokens.__ccg || 'UNKNOWN',
+      __rev: pageTokens.__rev || '1042258302',
+      __s: pageTokens.__s || tokens.webSessionId || pageTokens.webSessionId || '',
+      __hsi: pageTokens.__hsi,
+      __dyn: pageTokens.__dyn,
+      __csr: pageTokens.__csr || '',
+      __hsdp: pageTokens.__hsdp || '',
+      __hblp: pageTokens.__hblp || '',
+      __sjsp: pageTokens.__sjsp || '',
+      __comet_req: '29',
+      fb_dtsg: tokens.fbDtsg || pageTokens.fbDtsg || '',
+      jazoest: pageTokens.jazoest || '',
+      __spin_r: pageTokens.__spin_r || '1042258302',
+      __spin_b: 'trunk',
+      __spin_t: String(Math.floor(Date.now() / 1000)),
+      __jssesw: '3',
+      __crn: 'comet.threads.BarcelonaProfileThreadsColumnRoute',
+      fb_api_caller_class: 'RelayModern',
+      fb_api_req_friendly_name: 'useTHFollowMutationUnfollowMutation',
+      server_timestamps: 'true',
+      variables,
+      doc_id: '25812542025061756',
+    };
+
+    const bodyParams = new URLSearchParams();
+    Object.entries(requestMeta).forEach(([key, value]) => {
+      if (value || value === 0) bodyParams.append(key, String(value));
+    });
+
+    const headers = {
+      accept: '*/*',
+      'content-type': 'application/x-www-form-urlencoded',
+      'x-asbd-id': '359341',
+      'x-csrftoken': tokens.csrf,
+      'x-fb-friendly-name': 'useTHFollowMutationUnfollowMutation',
+      'x-fb-lsd': tokens.lsdToken || pageTokens.lsd || '',
+      'x-ig-app-id': '238260118697367',
+      'x-requested-with': 'XMLHttpRequest',
+    };
+    if (tokens.webSessionId || pageTokens.webSessionId) {
+      headers['x-web-session-id'] = tokens.webSessionId || pageTokens.webSessionId;
+    }
+
+    await fetchWithRetry(location.origin + '/api/graphql', {
+      method: 'POST',
+      credentials: 'include',
+      headers,
+      body: bodyParams.toString(),
+    });
+  }
+
+  function startCountdown() {
+    if (countdownTimer) return;
+    countdownTimer = setInterval(updateCountdownDOM, 500);
+  }
+
+  function stopCountdown() {
+    if (countdownTimer) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+  }
+
+  function updateCountdownDOM() {
+    const node = document.querySelector(`#${APP_ID} [data-countdown]`);
+    if (!node) return;
+    if (!state.waitUntil) {
+      node.textContent = '';
+      return;
+    }
+    const remaining = Math.max(0, Math.ceil((state.waitUntil - Date.now()) / 1000));
+    const reason = state.waitReason || 'nextActionIn';
+
+    let reasonStr = 'Next action in ';
+    if (reason === 'scanPause') {
+      reasonStr = 'Cooldown - ';
+    } else if (reason === 'cooldownIn') {
+      reasonStr = 'Retry - ';
+    }
+
+    node.textContent = `${reasonStr}${remaining}s`;
+  }
+
+  function updateProgressDOM() {
+    const root = document.querySelector(`#${APP_ID} [data-body]`);
+    if (!root) return;
+    const { current, total, label, note } = state.progress;
+
+    const detailsEl = root.querySelector('.iu-status-details');
+    if (detailsEl) {
+      if (state.mode === 'scanning') {
+        detailsEl.textContent = `${current} users scanned.`;
+      } else if (state.mode === 'unfollowing') {
+        detailsEl.textContent = `@${escapeHTML(note || '')} (${current} / ${total})`;
+      }
+    }
+
+    const listEl = root.querySelector('[data-list]');
+    if (listEl) {
+      const display = getDisplayUsers();
+      listEl.innerHTML = renderUserList(display);
+
+      const headerInfoEl = root.querySelector('.iu-list-header-info');
+      if (headerInfoEl) {
+        headerInfoEl.textContent = `${display.length} non-followers found`;
+      }
+
+      const selectAllBtn = root.querySelector("[data-action='toggle-select-all']");
+      if (selectAllBtn) {
+        selectAllBtn.textContent = isAllSelected() ? 'Deselect All' : 'Select All';
+      }
+    }
+
+    if (state.minimized) {
+      const pillLabelEl = document.querySelector(`#${APP_ID} [data-pill-label]`);
+      if (pillLabelEl) {
+        pillLabelEl.textContent = pillLabel();
+      }
+    }
+  }
+
+  function toast(message) {
+    const root = document.getElementById(APP_ID);
+    if (!root) return;
+    root.querySelector('.iu-toast')?.remove();
+    if (toastTimer) {
+      clearTimeout(toastTimer);
+      toastTimer = null;
+    }
+    const node = document.createElement('div');
+    node.className = 'iu-toast';
+    node.textContent = message;
+    root.appendChild(node);
+    toastTimer = setTimeout(() => {
+      node.remove();
+      toastTimer = null;
+    }, 3500);
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? '').replace(
+      /[&<>"']/g,
+      ch =>
+        ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+        })[ch]
+    );
+  }
+
+  function escapeAttr(value) {
+    return escapeHTML(value);
   }
 
   function cleanupExisting() {
@@ -240,6 +1202,14 @@
   }
 
   function injectStyles() {
+    if (!document.getElementById('tu-fonts')) {
+      const linkFonts = document.createElement('link');
+      linkFonts.id = 'tu-fonts';
+      linkFonts.rel = 'stylesheet';
+      linkFonts.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono&display=swap';
+      document.head.appendChild(linkFonts);
+    }
+
     const style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = CSS;
@@ -270,7 +1240,7 @@
     if (!root) return;
     if (state.minimized) {
       root.innerHTML = `
-        <button class="iu-pill" data-action="expand" type="button" aria-label="${escapeAttr(t('expand'))}">
+        <button class="iu-pill" data-action="expand" type="button" aria-label="Expand">
           <span class="iu-pill-dot ${pillStateClass()}"></span>
           <span data-pill-label>${escapeHTML(pillLabel())}</span>
         </button>
@@ -279,21 +1249,26 @@
       applyPanelPosition();
       return;
     }
+
+    const fullscreenClass = state.fullscreen ? 'iu-panel--fullscreen' : '';
+
     root.innerHTML = `
-      <section class="iu-panel" role="dialog" aria-label="${escapeAttr(t('title'))}">
+      <section class="iu-panel ${fullscreenClass}" role="dialog" aria-label="Threads Unfollowers">
         <header class="iu-header" data-drag>
+          <div class="iu-mac-controls">
+            <button type="button" class="iu-mac-dot iu-mac-close" data-action="close" aria-label="Close" title="Close">${SVG.close}</button>
+            <button type="button" class="iu-mac-dot iu-mac-minimize" data-action="minimize" aria-label="Minimize" title="Minimize">${SVG.minimize}</button>
+            <button type="button" class="iu-mac-dot iu-mac-expand" data-action="fullscreen" aria-label="Fullscreen" title="Fullscreen">${SVG.expand}</button>
+          </div>
           <div class="iu-brand">
-            <span class="iu-brand-dot"></span>
             <div class="iu-brand-text">
-              <strong>${escapeHTML(t('title'))}</strong>
-              <span data-subtitle>${escapeHTML(t('subtitle'))}</span>
+              <strong>Threads Unfollowers</strong>
             </div>
           </div>
           <div class="iu-header-actions">
-            <button type="button" data-action="settings" aria-label="${escapeAttr(t('settings'))}" title="${escapeAttr(t('settings'))}">${SVG.gear}</button>
-            <button type="button" data-action="language" aria-label="${escapeAttr(t('langCode'))}" title="${escapeAttr(t('langCode'))}"><span data-lang>${escapeHTML(t('langCode'))}</span></button>
-            <button type="button" data-action="minimize" aria-label="${escapeAttr(t('minimize'))}" title="${escapeAttr(t('minimize'))}">${SVG.minimize}</button>
-            <button type="button" data-action="close" aria-label="${escapeAttr(t('close'))}" title="${escapeAttr(t('close'))}">${SVG.close}</button>
+            ${state.mode !== 'settings' && state.mode !== 'scanning' && state.mode !== 'unfollowing' ? `
+              <button type="button" data-action="settings" aria-label="Settings" title="Settings">${SVG.gear}</button>
+            ` : ''}
           </div>
         </header>
         <div class="iu-body" data-body></div>
@@ -306,10 +1281,37 @@
   }
 
   function bindHeader(root) {
-    root.querySelector("[data-action='close']")?.addEventListener('click', () => unmount());
+    root.querySelector("[data-action='close']")?.addEventListener('click', handleCloseClick);
     root.querySelector("[data-action='minimize']")?.addEventListener('click', () => setMinimized(true));
-    root.querySelector("[data-action='settings']")?.addEventListener('click', showSettings);
-    root.querySelector("[data-action='language']")?.addEventListener('click', toggleLanguage);
+    root.querySelector("[data-action='fullscreen']")?.addEventListener('click', toggleFullscreen);
+    root.querySelector("[data-action='settings']")?.addEventListener('click', openSettings);
+  }
+
+  function handleCloseClick() {
+    if (state.mode === 'scanning' || state.mode === 'unfollowing') {
+      if (confirm('An active process is running. Are you sure you want to stop it and exit?')) {
+        state.scanCancelled = true;
+        unmount();
+      }
+    } else {
+      unmount();
+    }
+  }
+
+  function toggleFullscreen() {
+    state.fullscreen = !state.fullscreen;
+    persist();
+    renderShell();
+  }
+
+  function openSettings() {
+    if (state.mode === 'scanning' || state.mode === 'unfollowing') {
+      toast('Cannot modify settings while a process is running.');
+      return;
+    }
+    state.prevMode = state.mode;
+    state.mode = 'settings';
+    renderBody();
   }
 
   function applyPanelPosition() {
@@ -317,6 +1319,15 @@
     if (!root) return;
     const node = root.querySelector('.iu-panel') || root.querySelector('.iu-pill');
     if (!node) return;
+
+    if (state.fullscreen && !state.minimized) {
+      node.style.left = '';
+      node.style.top = '';
+      node.style.right = '';
+      node.style.bottom = '';
+      return;
+    }
+
     const pos = state.panelPos;
     if (pos && Number.isFinite(pos.x) && Number.isFinite(pos.y)) {
       const max = panelBounds(node);
@@ -352,6 +1363,7 @@
 
     handle.addEventListener('pointerdown', event => {
       if (event.target.closest('button')) return;
+      if (state.fullscreen) return;
       dragging = true;
       const rect = panel.getBoundingClientRect();
       originX = rect.left;
@@ -388,939 +1400,27 @@
     handle.addEventListener('pointercancel', stop);
   }
 
-  function setMinimized(value) {
-    state.minimized = Boolean(value);
-    persist();
-    renderShell();
-  }
-
-  function pillLabel() {
-    if (state.mode === 'scanning') {
-      return t('pillScanning', {
-        current: state.progress.current,
-        total: state.progress.total || '?',
-      });
-    }
-    if ((state.mode === 'results' || state.mode === 'scanDone') && state.users.length) {
-      return t('pillResults', {
-        count: state.users.filter(u => !u.follows_viewer && !state.hidden.has(u.id)).length,
-      });
-    }
-    return t('pillIdle');
-  }
-
-  function pillStateClass() {
-    if (state.mode === 'scanning') return 'iu-pill-dot--active';
-    if (state.error) return 'iu-pill-dot--error';
-    return '';
-  }
-
-  function renderBody() {
-    const body = document.querySelector(`#${APP_ID} [data-body]`);
-    if (!body) return;
-    if (state.mode === 'idle') {
-      body.innerHTML = renderIdleView();
-      bindIdle(body);
-    } else {
-      body.innerHTML = renderResultsView();
-      bindResults(body);
-    }
-    if (state.mode === 'scanning') startCountdown();
-    else stopCountdown();
-  }
-
-  function renderIdleView() {
-    if (state.error) {
-      return `
-        <div class="iu-welcome">
-          <div class="iu-welcome-icon iu-welcome-icon--error">${SVG.alert}</div>
-          <h2>${escapeHTML(t('scanFailed'))}</h2>
-          <p>${escapeHTML(state.error)}</p>
-          <button type="button" class="iu-btn iu-btn--primary" data-action="scan">${escapeHTML(t('retry'))}</button>
-        </div>
-      `;
-    }
-    return `
-      <div class="iu-welcome">
-        <div class="iu-welcome-icon">${SVG.sparkle}</div>
-        <h2>${escapeHTML(t('welcomeTitle'))}</h2>
-        <p>${escapeHTML(t('welcomeBody'))}</p>
-        <button type="button" class="iu-btn iu-btn--primary iu-btn--lg" data-action="scan">${escapeHTML(t('scanBtn'))}</button>
-      </div>
-    `;
-  }
-
-  function bindIdle(body) {
-    body.querySelector("[data-action='scan']")?.addEventListener('click', startScan);
-  }
-
-  function renderResultsView() {
-    const display = getDisplayUsers();
-    const totalNonFollowers = state.users.filter(u => !u.follows_viewer && !state.hidden.has(u.id)).length;
-    let summary;
-    if (state.mode === 'scanning') {
-      summary = t('scanning');
-    } else {
-      if (totalNonFollowers === 0) summary = t('foundNone');
-      else if (totalNonFollowers === 1) summary = t('foundOne');
-      else summary = t('foundCount', { count: totalNonFollowers });
-    }
-
-    let bottomBarHTML = '';
-    if (state.mode === 'scanning') {
-      const { current, total, label, note } = state.progress;
-      const counter = total ? t('ofTotal', { current, total }) : t('ofUnknown', { current });
-      bottomBarHTML = `
-        <div class="iu-progress-bar-container">
-          <div class="iu-progress-head">
-            <h2 data-progress-label>${escapeHTML(state.scanPaused ? t('paused') : t(label))}</h2>
-            <p data-progress-note>${escapeHTML(note)}</p>
-          </div>
-          <div class="iu-progress-meta">
-            <span data-progress-counter>${escapeHTML(counter)}</span>
-            <span data-countdown></span>
-          </div>
-          <div class="iu-progress-actions">
-            <button type="button" class="iu-btn iu-btn--small" data-action="pause-scan">${escapeHTML(t(state.scanPaused ? 'resume' : 'pause'))}</button>
-            <button type="button" class="iu-btn iu-btn--ghost iu-btn--small" data-action="cancel-scan">${escapeHTML(t('stop'))}</button>
-          </div>
-        </div>
-      `;
-    } else if (state.mode === 'scanDone') {
-      bottomBarHTML = `
-        <div class="iu-progress-bar-container">
-          <div class="iu-progress-head">
-            <h2 class="iu-text-success">${escapeHTML(t('scanCompletedToast', { count: totalNonFollowers }))}</h2>
-            <p class="iu-text-success">${escapeHTML(t('completed'))}</p>
-          </div>
-          <div class="iu-progress-actions">
-            <button type="button" class="iu-btn iu-btn--primary iu-btn--small" data-action="dismiss-status">${escapeHTML(t('goBack'))}</button>
-          </div>
-        </div>
-      `;
-    } else {
-      bottomBarHTML = `
-        <div class="iu-actionbar">
-          <div class="iu-actionbar-right">
-            <button type="button" class="iu-btn iu-btn--small" data-action="copy" ${display.length ? '' : 'disabled'}>${escapeHTML(t('copy'))}</button>
-          </div>
-        </div>
-      `;
-    }
-
-    return `
-      <div class="iu-results">
-        <div class="iu-results-summary">${escapeHTML(summary)}</div>
-        <div class="iu-search-row">
-          <input
-            class="iu-search"
-            type="search"
-            data-search
-            placeholder="${escapeAttr(t('search'))}"
-            value="${escapeAttr(state.search)}"
-            autocomplete="off"
-            spellcheck="false"
-          >
-        </div>
-        <div class="iu-filters">
-          ${filterChip('verified', t('filterVerified'))}
-          ${filterChip('showHidden', t('filterShowHidden'))}
-        </div>
-        <div class="iu-list" data-list>${renderUserList(display)}</div>
-        <div class="iu-bottom-bar-wrapper">${bottomBarHTML}</div>
-      </div>
-    `;
-  }
-
-  function filterChip(key, label) {
-    const active = state.filters[key];
-    return `
-      <button type="button" class="iu-chip ${active ? 'iu-chip--on' : ''}" data-filter="${escapeAttr(key)}" aria-pressed="${active ? 'true' : 'false'}">
-        <span class="iu-chip-tick">${active ? SVG.check : ''}</span>
-        ${escapeHTML(label)}
-      </button>
-    `;
-  }
-
-  function renderUserList(display) {
-    if (!display.length) {
-      if (state.mode === 'scanning') {
-        return `<div class="iu-list-empty">${escapeHTML(t('loadingFollowing'))}...</div>`;
-      }
-      return `<div class="iu-list-empty">${escapeHTML(t('noMatches'))}</div>`;
-    }
-    return display.map(renderUserRow).join('');
-  }
-
-  function renderUserRow(user) {
-    const hidden = state.hidden.has(user.id);
-    const tags = [];
-    if (user.is_verified) {
-      tags.push(`<span class="iu-tag iu-tag--blue">${escapeHTML(t('filterVerified'))}</span>`);
-    }
-    if (user.is_private) {
-      tags.push(`<span class="iu-tag">${escapeHTML(t('filterPrivate'))}</span>`);
-    }
-    return `
-      <div class="iu-row ${hidden ? 'iu-row--hidden' : ''}" data-row="${escapeAttr(user.id)}">
-        <img class="iu-avatar" src="${escapeAttr(user.profile_pic_url || '')}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
-        <div class="iu-row-text">
-          <div class="iu-row-name">
-            <a href="https://www.threads.com/@${encodeURIComponent(user.username)}" target="_blank" rel="noopener noreferrer" data-stop>@${escapeHTML(user.username)}</a>
-            ${tags.join(' ')}
-          </div>
-          <div class="iu-row-sub">${escapeHTML(user.full_name || '')}</div>
-        </div>
-        <div class="iu-row-actions">
-          <a class="iu-icon-btn" href="https://www.threads.com/@${encodeURIComponent(user.username)}" target="_blank" rel="noopener noreferrer" data-stop title="${escapeAttr(t('openProfile'))}" aria-label="${escapeAttr(t('openProfile'))}">${SVG.open}</a>
-          <button type="button" class="iu-icon-btn iu-text-btn" data-hide="${escapeAttr(user.id)}" data-stop title="${escapeAttr(hidden ? t('unhideTooltip') : t('hideTooltip'))}">${escapeHTML(hidden ? t('unhide') : t('hide'))}</button>
-        </div>
-      </div>
-    `;
-  }
-
-  function bindResults(body) {
-    const search = body.querySelector('[data-search]');
-    if (search) {
-      search.addEventListener('input', event => {
-        state.search = event.target.value;
-        const list = body.querySelector('[data-list]');
-        if (list) list.innerHTML = renderUserList(getDisplayUsers());
-      });
-    }
-
-    body.querySelectorAll('[data-filter]').forEach(el => {
-      el.addEventListener('click', () => {
-        const key = el.getAttribute('data-filter');
-        state.filters[key] = !state.filters[key];
-        persist();
-        renderBody();
-      });
-    });
-
-    body.addEventListener('click', event => {
-      const hideBtn = event.target.closest('[data-hide]');
-      if (hideBtn) {
-        event.preventDefault();
-        event.stopPropagation();
-        const id = hideBtn.getAttribute('data-hide');
-        if (state.hidden.has(id)) {
-          state.hidden.delete(id);
-        } else {
-          state.hidden.add(id);
-        }
-        persist();
-        renderBody();
-        return;
-      }
-      if (event.target.closest('[data-stop]')) {
-        event.stopPropagation();
-        return;
-      }
-    });
-
-    body.querySelector("[data-action='copy']")?.addEventListener('click', copyUsernames);
-
-    body.querySelector("[data-action='pause-scan']")?.addEventListener('click', () => {
-      state.scanPaused = !state.scanPaused;
-      renderBody();
-    });
-
-    body.querySelector("[data-action='cancel-scan']")?.addEventListener('click', () => {
-      state.scanCancelled = true;
-      state.scanPaused = false;
-      renderBody();
-    });
-
-    body.querySelector("[data-action='dismiss-status']")?.addEventListener('click', () => {
-      state.mode = 'results';
-      state.scanCancelled = false;
-      renderBody();
-    });
-  }
-
-  async function startScan() {
-    state.error = '';
-    state.mode = 'scanning';
-    state.scanPaused = false;
-    state.scanCancelled = false;
-    state.users = [];
-    state.progress = {
-      current: 0,
-      total: 0,
-      label: 'loadingFollowing',
-      note: '',
-    };
-    renderBody();
-
-    try {
-      const viewerId = getCookie('ds_user_id');
-      if (!viewerId) throw new Error(t('cookieMissing'));
-      const csrf = getCookie('csrftoken');
-      if (!csrf) throw new Error(t('csrfMissing'));
-
-      const username = getLoggedInUsername();
-      log('Found logged in username:', username);
-      const totalFollowing = await getFollowingCount(username, viewerId);
-      log('Found total following count:', totalFollowing);
-
-      state.progress.total = totalFollowing;
-      updateProgressDOM();
-
-      const onPage = (results, totalGuess) => {
-        state.progress = {
-          current: results.length,
-          total: totalGuess || totalFollowing || 0,
-          label: 'loadingFollowing',
-          note: '',
-        };
-        updateProgressDOM();
-      };
-
-      const following = await fetchFollowingWithBackStatus(viewerId, onPage, totalFollowing);
-      if (state.scanCancelled) {
-        state.users = following;
-        state.mode = 'results';
-        state.scanCancelled = false;
-        renderBody();
-        return;
-      }
-      state.users = following;
-
-      state.mode = 'scanDone';
-      const nonFollowers = state.users.filter(u => !u.follows_viewer && !state.hidden.has(u.id)).length;
-      toast(t('scanCompletedToast', { count: nonFollowers }));
-      renderBody();
-
-      setTimeout(() => {
-        if (state.mode === 'scanDone') {
-          state.mode = 'results';
-          state.scanCancelled = false;
-          renderBody();
-        }
-      }, 2000);
-    } catch (error) {
-      console.error('[tu] scan failed:', error);
-      state.error = error?.message || String(error) || t('scanFailed');
-      state.mode = 'idle';
-      renderBody();
-    }
-  }
-
-  async function fetchFollowingWithBackStatus(viewerId, onPage, initialTotal = 0) {
-    const results = [];
-    let cursor = '';
-    let page = 0;
-    let totalGuess = initialTotal;
-
-    const csrf = getCookie('csrftoken');
-    if (!csrf) {
-      log('Error: csrftoken cookie is missing!');
-      throw new Error(t('csrfMissing'));
-    }
-    const lsdToken = getLSDToken();
-    const fbDtsg = getFbDtsg();
-    const viewerFbid = getFbid(viewerId);
-
-    log('Starting fetch following process with settings:', {
-      viewerId,
-      csrf: csrf ? 'exists (length: ' + csrf.length + ')' : 'missing',
-      lsdToken: lsdToken ? 'exists (length: ' + lsdToken.length + ')' : 'missing',
-      fbDtsg: fbDtsg ? 'exists (length: ' + fbDtsg.length + ')' : 'missing',
-      viewerFbid,
-    });
-
-    while (true) {
-      await waitWhile(() => state.scanPaused && !state.scanCancelled);
-      if (state.scanCancelled) {
-        log('Scan was cancelled by user.');
-        return results;
-      }
-
-      const isFirst = page === 0;
-      const docId = isFirst ? '27111011515218333' : '27033450226310257';
-      const friendlyName = isFirst ? 'BarcelonaFriendshipsFollowingTabQuery' : 'BarcelonaFriendshipsFollowingTabRefetchableQuery';
-
-      const variables = isFirst
-        ? {
-            first: 20,
-            userID: viewerId,
-            __relay_internal__pv__BarcelonaIsInternalUserrelayprovider: false,
-            __relay_internal__pv__BarcelonaIsLoggedInrelayprovider: true,
-            __relay_internal__pv__BarcelonaIsCrawlerrelayprovider: false,
-            __relay_internal__pv__BarcelonaShouldShowFediverseListsrelayprovider: true,
-          }
-        : {
-            after: cursor,
-            first: 10,
-            id: viewerId,
-            __relay_internal__pv__BarcelonaIsInternalUserrelayprovider: false,
-            __relay_internal__pv__BarcelonaIsLoggedInrelayprovider: true,
-            __relay_internal__pv__BarcelonaIsCrawlerrelayprovider: false,
-          };
-
-      const headers = {
-        accept: '*/*',
-        'content-type': 'application/x-www-form-urlencoded',
-        'x-asbd-id': '359341',
-        'x-csrftoken': csrf,
-        'x-fb-friendly-name': friendlyName,
-        'x-fb-lsd': lsdToken || '',
-        'x-ig-app-id': '238260118697367',
-        'x-root-field-name': 'fetch__XDTUserDict',
-        'x-requested-with': 'XMLHttpRequest',
-      };
-
-      const bodyParams = new URLSearchParams();
-      bodyParams.append('lsd', lsdToken || '');
-      if (fbDtsg) bodyParams.append('fb_dtsg', fbDtsg);
-      bodyParams.append('av', viewerFbid);
-      bodyParams.append('__user', '0');
-      bodyParams.append('__a', '1');
-      bodyParams.append('fb_api_caller_class', 'RelayModern');
-      bodyParams.append('fb_api_req_friendly_name', friendlyName);
-      bodyParams.append('variables', JSON.stringify(variables));
-      bodyParams.append('doc_id', docId);
-
-      log(`Preparing request for page ${page}:`, {
-        friendlyName,
-        docId,
-        variables,
-        headers,
-        bodyString: bodyParams.toString(),
-      });
-
-      let response;
-      let attempt = 0;
-      while (true) {
-        try {
-          log(`Sending fetch request (page: ${page}, attempt: ${attempt})...`);
-          response = await fetch(location.origin + '/graphql/query', {
-            method: 'POST',
-            credentials: 'include',
-            headers: headers,
-            body: bodyParams.toString(),
-          });
-          log(`Response received (page: ${page}): status = ${response.status}`);
-          if (response.ok) break;
-
-          log(`Response not ok: status = ${response.status}`);
-          if (response.status === 429 || (response.status >= 500 && response.status < 600)) {
-            if (attempt >= MAX_RETRIES) {
-              if (response.status === 429) {
-                log('Rate limit reached. Maximum retries exhausted.');
-                throw new Error(t('tooManyRequests'));
-              }
-              throw new Error(t('requestFailed', { status: response.status }));
-            }
-            const retryAfter = parseRetryAfter(response.headers.get('retry-after'));
-            const wait = retryAfter || Math.min(60000, 5000 * Math.pow(2, attempt));
-            log(`Retrying after cooldown of ${wait}ms...`);
-            await sleepWithCountdown(wait, 'cooldownIn');
-            attempt += 1;
-            continue;
-          }
-          throw new Error(t('requestFailed', { status: response.status }));
-        } catch (e) {
-          log(`Fetch exception on page ${page}, attempt ${attempt}:`, e);
-          if (attempt >= MAX_RETRIES) throw e;
-          attempt += 1;
-          await sleep(2000);
-        }
-      }
-
-      log(`Parsing response for page ${page}...`);
-      const json = await parseResponse(response);
-      const userObj = json.data?.fetch__XDTUserDict || json.data?.user || json.data?.node;
-      const edge = userObj?.following;
-      if (!edge?.edges) {
-        log('Error: parsed response does not contain following edges structure!', {
-          json,
-          userObj,
-        });
-        throw new Error(t('scanFailed'));
-      }
-
-      const users = edge.edges.map(item => normalizeUser(item.node)).filter(u => u.id && u.username);
-
-      log(`Successfully processed page ${page}. Users in this page: ${users.length}`);
-      results.push(...users);
-      state.users = dedupe(results);
-
-      onPage(state.users, totalGuess);
-
-      cursor = edge.page_info?.end_cursor || '';
-      page += 1;
-
-      log(`Page ${page - 1} summary:`, {
-        cursor,
-        hasNextPage: edge.page_info?.has_next_page,
-        totalLoadedSoFar: state.users.length,
-      });
-
-      if (!edge.page_info?.has_next_page || !cursor) {
-        log('No more pages left. Fetch loop complete.');
-        break;
-      }
-
-      const nextDelay = randomBetween(state.timings.scanDelayMin, state.timings.scanDelayMax);
-      log(`Waiting ${nextDelay}ms before next page query...`);
-      await sleepWithCountdown(nextDelay, 'nextActionIn');
-
-      if (state.timings.scanPauseEveryPages > 0 && page % state.timings.scanPauseEveryPages === 0) {
-        log(`Triggering scheduled cooldown scan pause of ${state.timings.scanPauseMs}ms...`);
-        await sleepWithCountdown(state.timings.scanPauseMs, 'scanPause');
-      }
-    }
-    log(`Fetch complete. Total unfollowers / followers found: ${results.length}, deduped: ${state.users.length}`);
-    return dedupe(results);
-  }
-
-  function parseRetryAfter(value) {
-    if (!value) return 0;
-    const seconds = Number(value);
-    if (Number.isFinite(seconds)) return Math.max(0, seconds * 1000);
-    const date = Date.parse(value);
-    if (!Number.isNaN(date)) return Math.max(0, date - Date.now());
-    return 0;
-  }
-
-  async function copyUsernames() {
-    const display = getDisplayUsers();
-    if (!display.length) return;
-    const text = display
-      .map(u => u.username)
-      .sort()
-      .join('\n');
-    try {
-      await navigator.clipboard.writeText(text);
-      toast(t('copiedToast', { count: display.length }));
-    } catch (err) {
-      console.error('[tu] copy to clipboard failed', err);
-    }
-  }
-
-  function toggleLanguage() {
-    state.language = state.language === 'tr' ? 'en' : 'tr';
-    persist();
-    renderShell();
-  }
-
-  function getDisplayUsers() {
-    const query = state.search.trim().toLowerCase();
-    return state.users
-      .filter(u => !u.follows_viewer)
-      .filter(u => (state.filters.showHidden ? state.hidden.has(u.id) : !state.hidden.has(u.id)))
-      .filter(u => state.filters.verified || !u.is_verified)
-      .filter(
-        u =>
-          !query ||
-          (u.username + ' ' + (u.full_name || ''))
-            .toLowerCase()
-            .includes(query)
-      )
-      .sort((a, b) => a.username.localeCompare(b.username));
-  }
-
-  function normalizeUser(raw) {
-    return {
-      id: String(raw.id || raw.pk || raw.pk_id || ''),
-      username: String(raw.username || ''),
-      full_name: String(raw.full_name || ''),
-      profile_pic_url: String(raw.profile_pic_url || raw.profile_pic_url_hd || ''),
-      is_verified: Boolean(raw.is_verified),
-      is_private: Boolean(raw.text_post_app_is_private ?? raw.is_private),
-      follows_viewer: Boolean(raw.friendship_status?.followed_by),
-    };
-  }
-
-  function dedupe(list) {
-    const seen = new Set();
-    return list.filter(u => {
-      if (!u.id || seen.has(u.id)) return false;
-      seen.add(u.id);
-      return true;
-    });
-  }
-
-  function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(^|; )' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]*)'));
-    return match ? decodeURIComponent(match[2]) : null;
-  }
-
-  function getFbid(viewerId) {
-    let fbid = '';
-    for (const script of document.querySelectorAll('script')) {
-      const match =
-        script.textContent.match(/"ACCOUNT_ID":"([^"]+)"/) ||
-        script.textContent.match(/"USER_ID":"([^"]+)"/) ||
-        script.textContent.match(/"fbid":"([^"]+)"/);
-      if (match) {
-        fbid = match[1];
-        break;
-      }
-    }
-    return fbid || viewerId || '0';
-  }
-
-  function getLoggedInUsername() {
-    const link = document.querySelector('a[href^="/@"]');
-    if (link) return link.getAttribute('href').replace('/@', '').split('?')[0];
-    for (const script of document.querySelectorAll('script')) {
-      const text = script.textContent;
-      if (!text) continue;
-      const match = text.match(/"username":"([^"]+)"/);
-      if (match) return match[1];
-    }
-    return null;
-  }
-
-  async function fetchFollowingCount(username) {
-    if (!username) return 0;
-    try {
-      log(`Fetching following count from profile page: /@${username}...`);
-      const response = await fetch(location.origin + '/@' + username);
-      if (!response.ok) return 0;
-      const html = await response.text();
-      const match = html.match(/"following_count":\s*(\d+)/) || html.match(/"following":\s*\{\s*"count":\s*(\d+)/);
-      if (match) {
-        log(`Following count parsed from profile HTML: ${match[1]}`);
-        return parseInt(match[1], 10);
-      }
-    } catch (e) {
-      log('Failed to fetch following count from profile:', e);
-    }
-    return 0;
-  }
-
-  async function getFollowingCount(username, userId) {
-    for (const script of document.querySelectorAll('script')) {
-      const text = script.textContent;
-      if (!text) continue;
-      if (text.includes(userId)) {
-        const match = text.match(/"following_count":\s*(\d+)/);
-        if (match) {
-          log(`Following count found in script tags: ${match[1]}`);
-          return parseInt(match[1], 10);
-        }
-      }
-    }
-    if (username) {
-      return fetchFollowingCount(username);
-    }
-    return 0;
-  }
-
-  function getLSDToken() {
-    if (window.LSD?.token) return window.LSD.token;
-    if (window.__LSD__?.token) return window.__LSD__.token;
-    for (const script of document.querySelectorAll('script')) {
-      const match = script.textContent.match(/"LSD",\[\],{"token":"([^"]+)"}/) || script.textContent.match(/"lsd":"([^"]+)"/);
-      if (match) return match[1];
-    }
-    const matchHTML =
-      document.body.innerHTML.match(/"LSD",\[\],{"token":"([^"]+)"}/) ||
-      document.body.innerHTML.match(/"lsd":"([^"]+)"/) ||
-      document.body.innerHTML.match(/name="lsd" value="([^"]+)"/);
-    return matchHTML ? matchHTML[1] : null;
-  }
-
-  function getFbDtsg() {
-    if (window.DTSGInitData?.token) return window.DTSGInitData.token;
-    if (window.__DTSGInitData__?.token) return window.__DTSGInitData__.token;
-    for (const script of document.querySelectorAll('script')) {
-      const match = script.textContent.match(/"DTSGInitData",\[\],{"token":"([^"]+)"}/) || script.textContent.match(/"fb_dtsg":"([^"]+)"/);
-      if (match) return match[1];
-    }
-    const matchHTML =
-      document.body.innerHTML.match(/"DTSGInitData",\[\],{"token":"([^"]+)"}/) ||
-      document.body.innerHTML.match(/"fb_dtsg":"([^"]+)"/) ||
-      document.body.innerHTML.match(/name="fb_dtsg" value="([^"]+)"/);
-    return matchHTML ? matchHTML[1] : null;
-  }
-
-  async function parseResponse(response) {
-    const text = await response.text();
-    log('Response text body:', text);
-    let cleaned = text.trim();
-    if (cleaned.startsWith('for (;;);')) {
-      cleaned = cleaned.substring(9);
-    } else if (cleaned.startsWith('while (1);')) {
-      cleaned = cleaned.substring(10);
-    } else if (cleaned.startsWith(")]}'")) {
-      cleaned = cleaned.substring(4);
-    }
-
-    try {
-      const parsed = JSON.parse(cleaned);
-      log('Successfully parsed single JSON object:', parsed);
-      return parsed;
-    } catch (e) {
-      log('Failed parsing text as single JSON object. Trying line-by-line parsing...');
-      const lines = cleaned.split('\n');
-      for (const line of lines) {
-        let lineCleaned = line.trim();
-        if (lineCleaned.startsWith('for (;;);')) {
-          lineCleaned = lineCleaned.substring(9);
-        }
-        try {
-          const parsed = JSON.parse(lineCleaned);
-          if (parsed?.data) {
-            log('Successfully parsed line-by-line JSON part:', parsed);
-            return parsed;
-          }
-        } catch (err) {}
-      }
-      log('Line-by-line parsing failed too. Throwing original error:', e);
-      throw e;
-    }
-  }
-
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, Math.max(0, ms)));
-  }
-
-  function randomBetween(min, max) {
-    const lo = Math.min(min, max);
-    const hi = Math.max(min, max);
-    return Math.floor(Math.random() * (hi - lo + 1)) + lo;
-  }
-
-  async function waitWhile(predicate, interval = 200) {
-    while (predicate()) await sleep(interval);
-  }
-
-  async function sleepWithCountdown(ms, reasonKey) {
-    state.waitUntil = Date.now() + ms;
-    state.waitReason = reasonKey;
-    updateCountdownDOM();
-    const start = Date.now();
-    while (Date.now() - start < ms) {
-      if (state.scanCancelled) break;
-      await sleep(Math.min(250, ms - (Date.now() - start)));
-      if (state.scanPaused) {
-        const pauseStart = Date.now();
-        await waitWhile(() => state.scanPaused);
-        state.waitUntil += Date.now() - pauseStart;
-        updateCountdownDOM();
-      }
-    }
-    state.waitUntil = 0;
-    state.waitReason = '';
-    updateCountdownDOM();
-  }
-
-  function startCountdown() {
-    if (countdownTimer) return;
-    countdownTimer = setInterval(updateCountdownDOM, 500);
-  }
-
-  function stopCountdown() {
-    if (countdownTimer) {
-      clearInterval(countdownTimer);
-      countdownTimer = null;
-    }
-  }
-
-  function updateCountdownDOM() {
-    const node = document.querySelector(`#${APP_ID} [data-countdown]`);
-    if (!node) return;
-    if (!state.waitUntil) {
-      node.textContent = '';
-      return;
-    }
-    const remaining = Math.max(0, Math.ceil((state.waitUntil - Date.now()) / 1000));
-    const reason = state.waitReason || 'nextActionIn';
-    node.textContent = t(reason, { seconds: remaining });
-  }
-
-  function updateProgressDOM() {
-    const root = document.querySelector(`#${APP_ID} [data-body]`);
-    if (!root) return;
-    const { current, total, label, note } = state.progress;
-    const counter = root.querySelector('[data-progress-counter]');
-    if (counter) {
-      counter.textContent = total ? t('ofTotal', { current, total }) : t('ofUnknown', { current });
-    }
-    const labelEl = root.querySelector('[data-progress-label]');
-    if (labelEl) {
-      labelEl.textContent = state.scanPaused ? t('paused') : t(label);
-    }
-    const noteEl = root.querySelector('[data-progress-note]');
-    if (noteEl) {
-      noteEl.textContent = note || '';
-    }
-
-    const listEl = root.querySelector('[data-list]');
-    if (listEl) {
-      const display = getDisplayUsers();
-      listEl.innerHTML = renderUserList(display);
-      const summaryEl = root.querySelector('.iu-results-summary');
-      if (summaryEl) {
-        const totalNonFollowers = state.users.filter(u => !u.follows_viewer && !state.hidden.has(u.id)).length;
-        summaryEl.textContent =
-          state.mode === 'scanning'
-            ? t('scanning')
-            : totalNonFollowers === 0
-            ? t('foundNone')
-            : totalNonFollowers === 1
-            ? t('foundOne')
-            : t('foundCount', { count: totalNonFollowers });
-      }
-    }
-
-    if (state.minimized) {
-      const pillLabelEl = document.querySelector(`#${APP_ID} [data-pill-label]`);
-      if (pillLabelEl) {
-        pillLabelEl.textContent = pillLabel();
-      }
-    }
-  }
-
-  function toast(message) {
-    const root = document.getElementById(APP_ID);
-    if (!root) return;
-    root.querySelector('.iu-toast')?.remove();
-    if (toastTimer) {
-      clearTimeout(toastTimer);
-      toastTimer = null;
-    }
-    const node = document.createElement('div');
-    node.className = 'iu-toast';
-    node.textContent = message;
-    root.appendChild(node);
-    toastTimer = setTimeout(() => {
-      node.remove();
-      toastTimer = null;
-    }, 3500);
-  }
-
-  function showSettings() {
-    const fields = [
-      ['scanDelayMin', 'minScanDelay', 100],
-      ['scanDelayMax', 'maxScanDelay', 100],
-      ['scanPauseEveryPages', 'scanPauseEvery', 1],
-      ['scanPauseMs', 'scanPauseLength', 1000],
-    ];
-    const formHTML = fields
-      .map(
-        ([key, label, step]) => `
-      <label class="iu-field">
-        <span>${escapeHTML(t(label))}</span>
-        <input type="number" min="0" step="${step}" data-setting="${escapeAttr(key)}" value="${Number(state.timings[key])}">
-      </label>
-    `
-      )
-      .join('');
-
-    showDialog({
-      title: t('settingsTitle'),
-      body: t('settingsBody'),
-      contentHTML: `<div class="iu-form">${formHTML}</div>`,
-      confirmLabel: t('save'),
-      extraButton: { label: t('restoreDefaults'), action: 'restore' },
-      onConfirm: dialog => {
-        dialog.querySelectorAll('[data-setting]').forEach(input => {
-          const key = input.getAttribute('data-setting');
-          const val = Number(input.value);
-          if (Number.isFinite(val) && val >= 0) {
-            state.timings[key] = val;
-          }
-        });
-        persist();
-        toast(t('saved'));
-      },
-      onExtra: dialog => {
-        Object.assign(state.timings, DEFAULT_TIMINGS);
-        dialog.querySelectorAll('[data-setting]').forEach(input => {
-          const key = input.getAttribute('data-setting');
-          input.value = state.timings[key];
-        });
-      },
-    });
-  }
-
-  function showDialog({
-    title,
-    body,
-    contentHTML,
-    confirmLabel,
-    destructive,
-    extraButton,
-    onConfirm,
-    onExtra,
-  }) {
-    const overlay = document.createElement('div');
-    overlay.className = 'iu-overlay';
-    overlay.innerHTML = `
-      <div class="iu-dialog" role="dialog" aria-modal="true">
-        <h3>${escapeHTML(title)}</h3>
-        ${body ? `<p>${escapeHTML(body)}</p>` : ''}
-        ${contentHTML || ''}
-        <div class="iu-dialog-actions">
-          ${extraButton ? `<button type="button" class="iu-btn iu-btn--ghost iu-btn--small" data-extra>${escapeHTML(extraButton.label)}</button>` : ''}
-          <button type="button" class="iu-btn iu-btn--small" data-cancel>${escapeHTML(t('cancel'))}</button>
-          <button type="button" class="iu-btn iu-btn--small ${destructive ? 'iu-btn--danger' : 'iu-btn--primary'}" data-confirm>${escapeHTML(confirmLabel)}</button>
-        </div>
-      </div>
-    `;
-    document.getElementById(APP_ID).appendChild(overlay);
-    const close = () => overlay.remove();
-    overlay.addEventListener('click', event => {
-      if (event.target === overlay) close();
-    });
-    overlay.querySelector('[data-cancel]').addEventListener('click', close);
-    overlay.querySelector('[data-confirm]').addEventListener('click', () => {
-      onConfirm(overlay);
-      close();
-    });
-    if (extraButton && onExtra) {
-      overlay.querySelector('[data-extra]').addEventListener('click', () => onExtra(overlay.querySelector('.iu-dialog')));
-    }
-  }
-
-  function clamp(value, min, max) {
-    return Math.min(Math.max(value, min), max);
-  }
-
-  function escapeHTML(value) {
-    return String(value ?? '').replace(
-      /[&<>"']/g,
-      ch =>
-        ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;',
-        })[ch]
-    );
-  }
-
-  function escapeAttr(value) {
-    return escapeHTML(value);
-  }
-
   const CSS = `
     #${APP_ID}, #${APP_ID} * { box-sizing: border-box; }
     #${APP_ID} {
-      --iu-bg: #101010;
-      --iu-bg-2: #181818;
-      --iu-bg-3: #222222;
-      --iu-line: rgba(255,255,255,0.08);
-      --iu-line-strong: rgba(255,255,255,0.16);
-      --iu-text: #ffffff;
-      --iu-muted: #999999;
-      --iu-accent: #ffffff;
-      --iu-accent-2: #e5e5e5;
-      --iu-danger: #ff3040;
-      --iu-success: #00f576;
+      --iu-bg: rgba(19, 19, 19, 0.75);
+      --iu-bg-card: rgba(10, 10, 10, 0.7);
+      --iu-bg-hover: rgba(255, 255, 255, 0.06);
+      --iu-line: rgba(255, 255, 255, 0.08);
+      --iu-line-strong: rgba(255, 255, 255, 0.16);
+      --iu-text: #e5e2e1;
+      --iu-muted: #bfc7d4;
+      --iu-primary: #0095f6;
+      --iu-primary-dim: #9ecaff;
+      --iu-danger: #ffb4ab;
+      --iu-danger-container: #93000a;
+      
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 2147483647;
       color: var(--iu-text);
-      font: 14px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     #${APP_ID} > * { pointer-events: auto; }
     #${APP_ID} button, #${APP_ID} input, #${APP_ID} a { font: inherit; color: inherit; }
@@ -1329,47 +1429,97 @@
 
     #${APP_ID} .iu-panel {
       position: absolute;
-      width: ${PANEL_WIDTH}px;
+      width: 390px;
+      height: 680px;
       max-width: calc(100vw - 24px);
       max-height: calc(100vh - 24px);
       display: flex;
       flex-direction: column;
       background: var(--iu-bg);
       border: 1px solid var(--iu-line);
-      border-radius: 14px;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.3);
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
       overflow: hidden;
-      animation: iu-pop 0.18s ease-out;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      animation: iu-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     @keyframes iu-pop {
-      from { opacity: 0; transform: translateY(8px) scale(0.985); }
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
+
+    #${APP_ID} .iu-panel.iu-panel--fullscreen {
+      width: calc(100vw - 40px) !important;
+      height: calc(100vh - 40px) !important;
+      max-width: none !important;
+      max-height: none !important;
+      left: 20px !important;
+      top: 20px !important;
+      right: 20px !important;
+      bottom: 20px !important;
+    }
+
     #${APP_ID} .iu-header {
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 12px 12px 12px 14px;
+      height: 48px;
+      padding: 0 12px;
       border-bottom: 1px solid var(--iu-line);
       cursor: grab;
       user-select: none;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
     }
     #${APP_ID} .iu-header.iu-dragging { cursor: grabbing; }
-    #${APP_ID} .iu-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-    #${APP_ID} .iu-brand-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--iu-success), var(--iu-muted));
-      flex-shrink: 0;
+
+    #${APP_ID} .iu-mac-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 60px;
     }
-    #${APP_ID} .iu-brand-text { min-width: 0; }
-    #${APP_ID} .iu-brand-text strong { display: block; font-size: 14px; font-weight: 600; }
-    #${APP_ID} .iu-brand-text span { display: block; font-size: 11px; color: var(--iu-muted); }
-    #${APP_ID} .iu-header-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    #${APP_ID} .iu-mac-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+      position: relative;
+    }
+    #${APP_ID} .iu-mac-dot svg {
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    #${APP_ID} .iu-mac-controls:hover .iu-mac-dot svg {
+      opacity: 1;
+    }
+    #${APP_ID} .iu-mac-close { background-color: #FF5F57; }
+    #${APP_ID} .iu-mac-minimize { background-color: #FEBC2E; }
+    #${APP_ID} .iu-mac-expand { background-color: #28C840; }
+
+    #${APP_ID} .iu-brand {
+      flex: 1;
+      text-align: center;
+      min-width: 0;
+    }
+    #${APP_ID} .iu-brand-text strong {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    #${APP_ID} .iu-header-actions {
+      display: flex;
+      justify-content: flex-end;
+      width: 60px;
+    }
     #${APP_ID} .iu-header-actions button {
       width: 28px;
       height: 28px;
@@ -1380,11 +1530,11 @@
       border-radius: 6px;
       color: var(--iu-muted);
       transition: background 0.15s, color 0.15s;
-      font-size: 11px;
-      font-weight: 600;
     }
-    #${APP_ID} .iu-header-actions button:hover { background: var(--iu-bg-2); color: var(--iu-text); }
-    #${APP_ID} .iu-header-actions svg { display: block; }
+    #${APP_ID} .iu-header-actions button:hover {
+      background: var(--iu-bg-hover);
+      color: var(--iu-text);
+    }
 
     #${APP_ID} .iu-body {
       flex: 1 1 auto;
@@ -1392,305 +1542,647 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      background: #131313;
     }
 
+    /* Welcome / Entry screen */
     #${APP_ID} .iu-welcome {
-      padding: 28px 22px;
+      padding: 24px 20px;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      gap: 16px;
+      flex: 1;
     }
     #${APP_ID} .iu-welcome-icon {
-      width: 64px;
-      height: 64px;
+      width: 80px;
+      height: 80px;
       display: grid;
       place-items: center;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      color: var(--iu-text);
-      margin-bottom: 4px;
-    }
-    #${APP_ID} .iu-welcome-icon--error { background: rgba(239,68,68,0.15); color: var(--iu-danger); }
-    #${APP_ID} .iu-welcome h2 { margin: 0; font-size: 17px; font-weight: 600; color: var(--ui-muted); }
-    #${APP_ID} .iu-welcome p { margin: 0; color: var(--iu-muted); font-size: 13px; max-width: 300px; }
-
-    #${APP_ID} .iu-btn {
+      border-radius: 20px;
+      background: rgba(255,255,255,0.04);
       border: 1px solid var(--iu-line);
-      background: var(--iu-bg-2);
-      color: var(--iu-text);
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      transition: background 0.15s, border-color 0.15s, transform 0.05s;
+      color: var(--iu-primary-dim);
+      box-shadow: 0 0 20px rgba(158, 202, 255, 0.2);
     }
-    #${APP_ID} .iu-btn:hover:not(:disabled) { background: var(--iu-bg-3); border-color: var(--iu-line-strong); }
-    #${APP_ID} .iu-btn:active:not(:disabled) { transform: scale(0.98); }
-    #${APP_ID} .iu-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    #${APP_ID} .iu-btn--primary { background: var(--iu-accent); border-color: var(--iu-accent); color: #000000; }
-    #${APP_ID} .iu-btn--primary:hover:not(:disabled) { background: var(--iu-accent-2); border-color: var(--iu-accent-2); }
-    #${APP_ID} .iu-btn--danger { background: var(--iu-danger); border-color: var(--iu-danger); color: #fff; }
-    #${APP_ID} .iu-btn--danger:hover:not(:disabled) { background: #ff4d5a; border-color: #ff4d5a; }
-    #${APP_ID} .iu-btn--ghost { background: transparent; }
-    #${APP_ID} .iu-btn--lg { padding: 10px 20px; font-size: 14px; margin-top: 8px; }
-    #${APP_ID} .iu-btn--small { padding: 6px 10px; font-size: 12px; }
+    #${APP_ID} .iu-welcome-icon svg {
+      width: 40px;
+      height: 40px;
+    }
+    #${APP_ID} .iu-welcome-icon--error {
+      background: rgba(255, 48, 64, 0.08);
+      border-color: rgba(255, 48, 64, 0.2);
+      color: var(--iu-danger);
+      box-shadow: 0 10px 25px rgba(255, 48, 64, 0.15);
+    }
+    #${APP_ID} .iu-welcome-text h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+    #${APP_ID} .iu-welcome-description {
+      margin: 8px auto 0;
+      color: var(--iu-muted);
+      font-size: 13px;
+      max-width: 290px;
+      line-height: 1.5;
+      opacity: 0.8;
+    }
+    #${APP_ID} .iu-btn-welcome {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      color: #000000;
+      padding: 12px 32px;
+      border-radius: 9999px;
+      font-size: 16px;
+      font-weight: 700;
+      outline: none;
+      border: none;
+    }
+    #${APP_ID} .iu-btn-welcome:active {
+      transform: scale(0.95);
+    }
 
-    #${APP_ID} .iu-progress-bar-container { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
-    #${APP_ID} .iu-progress-head { display: flex; flex-direction: column; gap: 2px; }
-    #${APP_ID} .iu-progress-head h2 { margin: 0; font-size: 13px; font-weight: 600; color: var(--iu-muted); }
-    #${APP_ID} .iu-progress-head p { margin: 0; color: var(--iu-muted); font-size: 11px; min-height: 1em; }
-    #${APP_ID} .iu-text-success { color: var(--iu-success); }
-    #${APP_ID} .iu-progress-meta {
+    /* Status Card styling */
+    #${APP_ID} .iu-status-card {
+      margin: 8px 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--iu-line);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #${APP_ID} .iu-status-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 11px;
-      color: var(--iu-muted);
     }
-    #${APP_ID} .iu-progress-actions { display: flex; gap: 6px; justify-content: flex-end; }
-    #${APP_ID} .iu-current {
+    #${APP_ID} .iu-status-left {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      background: var(--iu-bg-2);
-      border-radius: 6px;
-      font-size: 11px;
+      gap: 8px;
     }
-    #${APP_ID} .iu-current strong { font-weight: 600; }
+    #${APP_ID} .iu-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--iu-muted);
+    }
+    #${APP_ID} .iu-status-dot--active {
+      background: var(--iu-success);
+      animation: iu-pulse 1.4s infinite;
+    }
+    #${APP_ID} .iu-status-dot--stopped {
+      background: var(--iu-danger);
+    }
+    #${APP_ID} .iu-status-dot--completed {
+      background: var(--iu-primary-dim);
+    }
+    #${APP_ID} .iu-status-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--iu-text);
+    }
+    #${APP_ID} .iu-status-right {
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--iu-muted);
+      opacity: 0.8;
+    }
+    #${APP_ID} .iu-status-details-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 6px;
+    }
+    #${APP_ID} .iu-status-details {
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--iu-muted);
+    }
+    #${APP_ID} .iu-status-btn-stop {
+      background: rgba(255, 48, 64, 0.2);
+      color: var(--iu-danger);
+      border: 1px solid rgba(255, 48, 64, 0.3);
+      font-size: 8px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    #${APP_ID} .iu-status-btn-stop:hover {
+      background: rgba(255, 48, 64, 0.35);
+      transform: translateY(-1px);
+    }
+    #${APP_ID} .iu-status-btn-stop:active {
+      transform: scale(0.95);
+    }
+    #${APP_ID} .iu-status-btn-reload {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--iu-muted);
+      border: 1px solid var(--iu-line);
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+      outline: none;
+      padding: 0;
+    }
+    #${APP_ID} .iu-status-btn-reload:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--iu-text);
+      transform: rotate(30deg);
+    }
+    #${APP_ID} .iu-status-btn-reload:active {
+      transform: scale(0.92);
+    }
+    @keyframes iu-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(40, 200, 64, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(40, 200, 64, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(40, 200, 64, 0); }
+    }
 
+    /* Results layout */
     #${APP_ID} .iu-results {
       flex: 1 1 auto;
       min-height: 0;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
-    #${APP_ID} .iu-results-summary {
-      padding: 12px 16px 4px;
-      font-size: 13px;
-      color: var(--iu-muted);
-    }
-    #${APP_ID} .iu-search-row {
-      padding: 8px 16px;
-    }
-    #${APP_ID} .iu-search {
-      width: 100%;
-      height: 36px;
-      padding: 0 12px;
-      border: 1px solid var(--iu-line);
-      border-radius: 8px;
-      background: var(--iu-bg-2);
-      color: var(--iu-text);
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    #${APP_ID} .iu-search:focus { border-color: var(--iu-accent); }
-    #${APP_ID} .iu-search::-webkit-search-cancel-button { opacity: 0.5; }
 
-    #${APP_ID} .iu-filters {
+    #${APP_ID} .iu-filter-section {
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 0 16px 10px;
+      justify-content: flex-start;
+      align-items: center;
+      margin: 0 12px 8px;
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: var(--iu-bg-card);
+      border: 1px solid var(--iu-line);
+      backdrop-filter: blur(20px);
     }
-    #${APP_ID} .iu-chip {
+    #${APP_ID} .iu-filter-verified {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 4px 10px;
-      border: 1px solid var(--iu-line);
-      border-radius: 999px;
-      background: transparent;
-      color: var(--iu-muted);
-      font-size: 12px;
-      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--iu-text);
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.2s;
     }
-    #${APP_ID} .iu-chip:hover { border-color: var(--iu-line-strong); color: var(--iu-text); }
-    #${APP_ID} .iu-chip--on { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.5); color: var(--iu-text); }
-    #${APP_ID} .iu-chip-tick { display: inline-grid; place-items: center; width: 12px; height: 12px; }
-    #${APP_ID} .iu-chip-tick svg { width: 12px; height: 12px; }
+    #${APP_ID} .iu-filter-verified:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    #${APP_ID} .iu-filter-verified--active {
+      background: rgba(0, 149, 246, 0.15);
+      border-color: rgba(0, 149, 246, 0.4);
+      color: #0095f6;
+    }
+    #${APP_ID} .iu-filter-verified svg {
+      width: 12px !important;
+      height: 12px !important;
+      vertical-align: middle;
+      margin: 0;
+    }
+
+    #${APP_ID} .iu-list-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      margin-bottom: 2px;
+      border-bottom: 1px solid var(--iu-line);
+    }
+    #${APP_ID} .iu-select-all-btn {
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: var(--iu-primary);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      outline: none;
+      transition: opacity 0.2s;
+    }
+    #${APP_ID} .iu-select-all-btn:hover {
+      opacity: 0.8;
+    }
+    #${APP_ID} .iu-list-header-info {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--iu-muted);
+      font-weight: 700;
+      opacity: 0.8;
+      line-height: 1.2;
+    }
 
     #${APP_ID} .iu-list {
       flex: 1 1 auto;
       min-height: 100px;
-      max-height: 50vh;
       overflow-y: auto;
-      overscroll-behavior: contain;
-      border-top: 1px solid var(--iu-line);
       border-bottom: 1px solid var(--iu-line);
+      padding-bottom: 80px;
     }
     #${APP_ID} .iu-list-empty {
-      padding: 30px 20px;
+      padding: 40px 20px;
       text-align: center;
       color: var(--iu-muted);
-      font-size: 13px;
+      font-size: 14px;
     }
+
     #${APP_ID} .iu-row {
       display: grid;
-      grid-template-columns: 36px 1fr auto;
-      gap: 10px;
-      padding: 8px 16px;
+      grid-template-columns: 18px 40px 1fr;
+      gap: 12px;
+      padding: 8px 12px;
+      margin: 6px 12px;
       align-items: center;
-      cursor: default;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      transition: background 0.1s;
+      border: 1px solid var(--iu-line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.015);
+      transition: background 0.2s, border-color 0.2s;
     }
-    #${APP_ID} .iu-row:hover { background: rgba(255,255,255,0.02); }
-    #${APP_ID} .iu-row:last-child { border-bottom: none; }
-    #${APP_ID} .iu-row--hidden { opacity: 0.45; }
-    #${APP_ID} .iu-avatar {
-      width: 36px;
-      height: 36px;
+    #${APP_ID} .iu-row:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--iu-line-strong);
+    }
+
+    /* Custom Checkbox */
+    #${APP_ID} .iu-row-checkbox {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    #${APP_ID} .iu-row-checkbox input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      margin: 0;
+    }
+    #${APP_ID} .iu-checkbox-custom {
+      display: inline-grid;
+      place-items: center;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
-      object-fit: cover;
-      background: var(--iu-bg-3);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      background: transparent;
+      color: #fff;
+      transition: all 0.15s;
     }
+    #${APP_ID} .iu-row-checkbox input:checked + .iu-checkbox-custom {
+      background-color: var(--iu-primary);
+      border-color: var(--iu-primary);
+    }
+    #${APP_ID} .iu-checkbox-custom svg {
+      width: 10px;
+      height: 10px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    #${APP_ID} .iu-row-checkbox input:checked + .iu-checkbox-custom svg {
+      opacity: 1;
+    }
+
+    #${APP_ID} .iu-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.05);
+      object-fit: cover;
+      background: rgba(255,255,255,0.05);
+    }
+
     #${APP_ID} .iu-row-text { min-width: 0; }
-    #${APP_ID} .iu-row-name {
+    #${APP_ID} .iu-row-name-wrapper {
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+    #${APP_ID} .iu-row-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--iu-text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-size: 13px;
-      font-weight: 500;
     }
     #${APP_ID} .iu-row-name a { color: var(--iu-text); }
-    #${APP_ID} .iu-row-name a:hover { color: var(--iu-accent-2); }
+    #${APP_ID} .iu-row-name a:hover { text-decoration: underline; }
     #${APP_ID} .iu-row-sub {
       font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
       color: var(--iu-muted);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      opacity: 0.8;
     }
-    #${APP_ID} .iu-row-actions {
-      display: flex;
-      gap: 4px;
-      align-items: center;
+
+    /* Floating Action Button (FAB) */
+    #${APP_ID} .iu-fab-container {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 50;
     }
-    #${APP_ID} .iu-icon-btn {
-      display: inline-grid;
-      place-items: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      border: none;
-      background: transparent;
-      color: var(--iu-muted);
-      transition: background 0.15s, color 0.15s;
-    }
-    #${APP_ID} .iu-icon-btn:hover { background: var(--iu-bg-2); color: var(--iu-text); }
-    #${APP_ID} .iu-text-btn {
-      width: auto;
-      padding: 0 8px;
-      font-size: 11px;
-      font-weight: 500;
-    }
-    #${APP_ID} .iu-tag {
+    #${APP_ID} .iu-fab-btn {
       display: inline-flex;
       align-items: center;
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-weight: 600;
-      background: rgba(255,255,255,0.06);
-      color: var(--iu-muted);
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
+      gap: 6px;
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: #ffffff;
+      color: #000000;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
+      transition: all 0.2s;
     }
-    #${APP_ID} .iu-tag--blue {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #0095f6;
-      border-radius: 9999px;
-      padding: 2px 8px;
-      text-transform: none;
-      font-weight: 500;
+    #${APP_ID} .iu-fab-btn:hover:not(:disabled) {
+      background: #f5f5f5;
+      transform: translateY(-2px);
+      box-shadow: 0px 6px 16px rgba(0,0,0,0.6);
     }
-    #${APP_ID} .iu-tag--green { background: rgba(0,245,118,0.15); color: var(--iu-success); }
-    #${APP_ID} .iu-tag--red { background: rgba(255,48,64,0.15); color: var(--iu-danger); }
+    #${APP_ID} .iu-fab-btn:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+    #${APP_ID} .iu-fab-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
 
-    #${APP_ID} .iu-bottom-bar-wrapper {
-      flex-shrink: 0;
-      border-top: 1px solid var(--iu-line);
-      background: var(--iu-bg);
+    /* Settings Screen styling */
+    #${APP_ID} .iu-settings {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
     }
-    #${APP_ID} .iu-actionbar {
+    #${APP_ID} .iu-settings-head {
+      padding: 16px;
+      border-bottom: 1px solid var(--iu-line);
+      position: relative;
+    }
+    #${APP_ID} .iu-settings-head h2 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--iu-text);
+    }
+    #${APP_ID} .iu-settings-head p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--iu-muted);
+      opacity: 0.8;
+    }
+    #${APP_ID} .iu-reset-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--iu-primary-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: opacity 0.2s;
+    }
+    #${APP_ID} .iu-reset-btn:hover {
+      opacity: 0.8;
+    }
+    
+    #${APP_ID} .iu-settings-form {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    #${APP_ID} .iu-settings-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    #${APP_ID} .iu-settings-section-header h3 {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--iu-muted);
+      letter-spacing: 0.05em;
+    }
+    #${APP_ID} .iu-settings-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    #${APP_ID} .iu-settings-label-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
     }
-    #${APP_ID} .iu-actionbar-left,
-    #${APP_ID} .iu-actionbar-right {
+    #${APP_ID} .iu-settings-label-row label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--iu-text);
+    }
+    #${APP_ID} .iu-settings-label-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    #${APP_ID} .iu-settings-badge-green {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--iu-primary-dim);
+    }
+    #${APP_ID} .iu-settings-val {
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--iu-primary-dim);
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 149, 246, 0.1);
+    }
+    #${APP_ID} .iu-settings-help {
+      margin: 0;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--iu-muted);
+      opacity: 0.6;
+    }
+
+    #${APP_ID} .iu-settings-num-input-wrapper {
       display: flex;
       align-items: center;
-      gap: 8px;
-      min-width: 0;
+      gap: 6px;
     }
-    #${APP_ID} .iu-muted { color: var(--iu-muted); font-size: 12px; }
-
-    #${APP_ID} .iu-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.65);
-      display: grid;
-      place-items: center;
-      padding: 20px;
-      z-index: 1;
-    }
-    #${APP_ID} .iu-dialog {
-      width: 100%;
-      max-width: 380px;
-      background: var(--iu-bg);
-      border: 1px solid var(--iu-line);
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.55);
-    }
-    #${APP_ID} .iu-dialog h3 { margin: 0 0 8px; font-size: 16px; }
-    #${APP_ID} .iu-dialog p { margin: 0 0 14px; color: var(--iu-muted); font-size: 13px; }
-    #${APP_ID} .iu-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
-    #${APP_ID} .iu-dialog-actions [data-extra] { margin-right: auto; }
-    #${APP_ID} .iu-form { display: grid; gap: 8px; max-height: 50vh; overflow-y: auto; padding-right: 4px; }
-    #${APP_ID} .iu-field { display: grid; grid-template-columns: 1fr 110px; align-items: center; gap: 10px; font-size: 12px; color: var(--iu-muted); }
-    #${APP_ID} .iu-field input {
-      height: 32px;
-      padding: 0 10px;
+    #${APP_ID} .iu-settings-num-input-wrapper input {
+      width: 80px;
+      height: 28px;
+      background: #050505;
       border: 1px solid var(--iu-line);
       border-radius: 6px;
-      background: var(--iu-bg-2);
-      color: var(--iu-text);
+      color: var(--iu-primary-dim);
+      font-family: 'JetBrains Mono', monospace;
+      text-align: right;
+      padding: 0 8px;
       outline: none;
+      transition: border-color 0.2s;
     }
-    #${APP_ID} .iu-field input:focus { border-color: var(--iu-accent); }
+    #${APP_ID} .iu-settings-num-input-wrapper input:focus {
+      border-color: var(--iu-primary);
+    }
+    #${APP_ID} .iu-settings-num-input-wrapper span {
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--iu-muted);
+    }
 
+    /* Range slider custom styling */
+    #${APP_ID} input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+      margin: 0;
+    }
+    #${APP_ID} input[type="range"]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      background: #353534;
+      border-radius: 2px;
+    }
+    #${APP_ID} input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: var(--iu-primary-dim);
+      cursor: pointer;
+      margin-top: -6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      transition: transform 0.1s;
+    }
+    #${APP_ID} input[type="range"]::-webkit-slider-thumb:active {
+      transform: scale(1.15);
+    }
+
+    #${APP_ID} .iu-settings-actions {
+      padding: 12px;
+      border-top: 1px solid var(--iu-line);
+      display: flex;
+      gap: 12px;
+    }
+    #${APP_ID} .iu-btn-save {
+      flex: 1;
+      height: 40px;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    #${APP_ID} .iu-btn-save:hover {
+      background: #e5e5e5;
+    }
+    #${APP_ID} .iu-btn-save:active {
+      transform: scale(0.98);
+    }
+    #${APP_ID} .iu-btn-discard {
+      flex: 1;
+      height: 40px;
+      background: transparent;
+      border: 1px solid var(--iu-line);
+      color: var(--iu-text);
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    #${APP_ID} .iu-btn-discard:hover {
+      background: var(--iu-bg-hover);
+    }
+    #${APP_ID} .iu-btn-discard:active {
+      transform: scale(0.98);
+    }
+
+    /* Scrollbar styling */
+    #${APP_ID} .iu-list::-webkit-scrollbar,
+    #${APP_ID} .iu-settings-form::-webkit-scrollbar {
+      width: 4px;
+    }
+    #${APP_ID} .iu-list::-webkit-scrollbar-track,
+    #${APP_ID} .iu-settings-form::-webkit-scrollbar-track {
+      background: #131313;
+    }
+    #${APP_ID} .iu-list::-webkit-scrollbar-thumb,
+    #${APP_ID} .iu-settings-form::-webkit-scrollbar-thumb {
+      background: #353534;
+      border-radius: 10px;
+    }
+
+    /* Toast notification */
     #${APP_ID} .iu-toast {
       position: absolute;
       left: 50%;
-      bottom: 12px;
+      bottom: 84px;
       transform: translateX(-50%);
-      padding: 8px 14px;
-      background: rgba(20,22,28,0.95);
-      border: 1px solid var(--iu-line);
+      padding: 8px 16px;
+      background: rgba(25, 25, 25, 0.95);
+      border: 1px solid var(--iu-line-strong);
       border-radius: 999px;
       font-size: 12px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       pointer-events: none;
-      animation: iu-pop 0.18s ease-out;
+      z-index: 100;
+      animation: iu-toast-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes iu-toast-pop {
+      from { opacity: 0; transform: translate(-50%, 8px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
     }
 
+    /* Floating pill styling */
     #${APP_ID} .iu-pill {
       position: absolute;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 14px;
+      padding: 8px 16px;
       background: var(--iu-bg);
       border: 1px solid var(--iu-line);
       color: var(--iu-text);
@@ -1698,21 +2190,47 @@
       box-shadow: 0 12px 30px rgba(0,0,0,0.4);
       font-size: 12px;
       font-weight: 500;
-      transition: background 0.15s;
       cursor: pointer;
+      pointer-events: auto;
+      animation: iu-pop 0.18s ease-out;
     }
-    #${APP_ID} .iu-pill:hover { background: var(--iu-bg-2); }
+    #${APP_ID} .iu-pill:hover { background: var(--iu-bg-hover); }
     #${APP_ID} .iu-pill-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       background: var(--iu-muted);
     }
-    #${APP_ID} .iu-pill-dot--active { background: var(--iu-success); animation: iu-pulse 1.4s infinite; }
-    #${APP_ID} .iu-pill-dot--error { background: var(--iu-danger); }
-    @keyframes iu-pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+    #${APP_ID} .iu-pill-dot--active {
+      background: var(--iu-success);
+      animation: iu-pulse 1.4s infinite;
+    }
+    #${APP_ID} .iu-pill-dot--error {
+      background: var(--iu-danger);
+    }
+
+    /* Fullscreen Responsive layout override */
+    #${APP_ID} .iu-panel.iu-panel--fullscreen .iu-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-auto-rows: min-content;
+      align-content: start;
+      gap: 12px;
+      padding: 16px 16px 80px;
+      max-height: none;
+      flex: 1 1 auto;
+    }
+    #${APP_ID} .iu-panel.iu-panel--fullscreen .iu-row {
+      margin: 0;
+      height: 56px;
+    }
+    #${APP_ID} .iu-panel.iu-panel--fullscreen .iu-avatar {
+      width: 40px;
+      height: 40px;
+    }
+    #${APP_ID} .iu-panel.iu-panel--fullscreen .iu-row-text {
+      flex: 1;
+      min-width: 0;
     }
 
     @media (max-width: 480px) {

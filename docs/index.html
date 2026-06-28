@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Threads Unfollowers — Find who doesn't follow you back on Threads</title>
+<meta name="description" content="A free browser console script that scans your Threads following list and shows you exactly who doesn't follow you back. No login, no extension, no data leaves your browser.">
+<meta name="keywords" content="threads unfollowers, threads not following back, threads follow checker, threads.com script, unfollow threads">
+<meta name="author" content="Baki UN">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://bakiun.github.io/threads-unfollowers/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Threads Unfollowers — Find who doesn't follow you back">
+<meta property="og:description" content="Paste one script into your browser console and see exactly who on Threads doesn't follow you back. Free, open-source, runs locally.">
+<meta property="og:url" content="https://bakiun.github.io/threads-unfollowers/">
+<meta property="og:image" content="https://bakiun.github.io/threads-unfollowers/og-image.png">
+<meta property="og:site_name" content="Threads Unfollowers">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Threads Unfollowers — Find who doesn't follow you back">
+<meta name="twitter:description" content="Paste one script into your browser console and see exactly who on Threads doesn't follow you back.">
+<meta name="twitter:image" content="https://bakiun.github.io/threads-unfollowers/og-image.png">
+
+<!-- Structured data: SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Threads Unfollowers",
+  "applicationCategory": "BrowserApplication",
+  "operatingSystem": "Any",
+  "description": "A browser console script that scans your Threads following list and reports accounts that don't follow you back.",
+  "url": "https://bakiun.github.io/threads-unfollowers/",
+  "author": {
+    "@type": "Person",
+    "name": "Baki UN"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
+<!-- Structured data: FAQPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does this script post my Threads password or data anywhere?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The script runs entirely inside your own browser tab using your existing logged-in session. It never sends your data to any server, including ours."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will this get my Threads account banned?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The script only reads your following list — it does not automate likes, follows, or unfollows. Reading data through your browser console carries the same risk as browsing the page yourself, which is minimal. Automated unfollowing tools carry more risk; this is not one of those."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to install anything?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No installation, no extension, no account. You copy one script and paste it into your browser's developer console while on threads.com."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why didn't a name show up that I know unfollowed me?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The script reads your current following list at the moment you run it, so the list reflects live data. If you've already unfollowed someone, manually or through the app, they won't appear."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the script unfollow people automatically?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It only produces a list. Unfollowing anyone you find on that list is a manual step you take yourself, on your own terms."
+      }
+    }
+  ]
+}
+</script>
+
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg-raised: #141414;
+    --line: #262626;
+    --text: #fafafa;
+    --text-dim: #a3a3a3;
+    --text-faint: #595959;
+    --accent: #fafafa;
+    --accent-dim: #8c8c8c;
+    --mono: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .wrap {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- Header ---------- */
+  header.top {
+    border-bottom: 1px solid var(--line);
+  }
+  .top-inner {
+    max-width: 840px;
+    margin: 0 auto;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .brand {
+    color: var(--text);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .brand span { color: var(--accent); }
+  .top-link {
+    color: var(--text-dim);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    border-radius: 4px;
+  }
+  .top-link:hover { color: var(--text); border-color: var(--text-faint); text-decoration: none; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 72px 0 56px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 0 0 18px;
+  }
+  h1 {
+    font-size: clamp(32px, 5vw, 44px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 18px;
+    font-weight: 700;
+  }
+  h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .lede {
+    font-size: 17px;
+    color: var(--text-dim);
+    max-width: 52ch;
+    margin: 0 0 32px;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .btn {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #0a0a0a;
+  }
+  .btn-primary:hover { background: #d4d4d4; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--line);
+  }
+  .btn-secondary:hover { border-color: var(--text-faint); }
+
+  /* ---------- Code Container ---------- */
+  .code-container {
+    margin-top: 40px;
+    margin-bottom: 24px;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .code-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .code-hint {
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+  .code-box {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 16px;
+    background: #000;
+    white-space: nowrap;
+    overflow-x: auto;
+    cursor: text;
+    user-select: all;
+  }
+  .code-box::-webkit-scrollbar {
+    height: 6px;
+  }
+  .code-box::-webkit-scrollbar-track {
+    background: #000;
+  }
+  .code-box::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 3px;
+  }
+  .code-box::-webkit-scrollbar-thumb:hover {
+    background: var(--text-faint);
+  }
+
+  /* ---------- Step Images ---------- */
+  .step-image-container {
+    margin-top: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    background: #000;
+  }
+  .step-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform 0.3s ease;
+  }
+  .step-img:hover {
+    transform: scale(1.02);
+  }
+
+  /* ---------- Sections ---------- */
+  section { padding: 56px 0; border-top: 1px solid var(--line); }
+  h2 {
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    margin: 0 0 28px;
+  }
+  .num {
+    font-family: var(--mono);
+    color: var(--text-faint);
+    font-size: 14px;
+    margin-right: 10px;
+  }
+
+  /* Steps */
+  .steps { display: flex; flex-direction: column; gap: 28px; }
+  .step { display: flex; gap: 16px; }
+  .step-index {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent-dim);
+    flex-shrink: 0;
+    width: 24px;
+    padding-top: 2px;
+  }
+  .step-body h3 {
+    font-size: 16px;
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+  .step-body p {
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 15px;
+  }
+  .step-body code {
+    font-family: var(--mono);
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  /* What it shows / does not */
+  .grid-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .card h3 {
+    font-family: var(--mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 14px;
+    color: var(--text-faint);
+  }
+  .card ul { margin: 0; padding: 0; list-style: none; }
+  .card li {
+    font-size: 14px;
+    color: var(--text-dim);
+    padding-left: 18px;
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .card.does li::before { content: "+"; position: absolute; left: 0; color: var(--accent-dim); }
+
+  /* FAQ */
+  details {
+    border-bottom: 1px solid var(--line);
+    padding: 18px 0;
+  }
+  details:first-of-type { border-top: 1px solid var(--line); }
+  summary {
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: "+";
+    font-family: var(--mono);
+    color: var(--text-faint);
+    font-weight: 400;
+    flex-shrink: 0;
+  }
+  details[open] summary::after { content: "–"; }
+  details p {
+    margin: 12px 0 0;
+    color: var(--text-dim);
+    font-size: 14px;
+    max-width: 100%;
+  }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 32px 0 48px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  footer a { color: var(--text-faint); }
+  footer a:hover { color: var(--text-dim); }
+
+  @media (max-width: 560px) {
+    .grid-two { grid-template-columns: 1fr; }
+    .hero { padding: 48px 0 40px; }
+    footer { flex-direction: column; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">THREADS <span>UNFOLLOWERS</span></div>
+    <a class="top-link" href="https://github.com/bakiun/threads-unfollowers" target="_blank" rel="noopener">View on GitHub</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero" style="border-top:none;">
+    <p class="eyebrow">// with console · zero install</p>
+    <h1>See exactly who on Threads <em>doesn't follow you back.</em></h1>
+    <p class="lede">Paste one script into your browser console while you're on Threads. It reads your following list and prints the names that don't follow you back. That's the whole tool.</p>
+    <div class="code-container">
+      <div class="code-header">
+        <span class="code-title">// console</span>
+        <span class="code-hint">Double-click to select all</span>
+      </div>
+      <pre class="code-box" id="codeBox">(()=&gt;{&#39;use strict&#39;;const allowedHosts=[&#39;www.threads.com&#39;,&#39;threads.com&#39;];if(!allowedHosts.includes(location.hostname)){console.error(&#39;Please run this script on threads.com!&#39;);alert(&#39;Open https://www.threads.com first, then paste this script again.&#39;);return;}const APP_ID=&#39;tu-app&#39;;const STYLE_ID=&#39;tu-style&#39;;const STORAGE_KEY=&#39;tu_state_v1&#39;;const DEV=false;function log(...args){if(DEV){console.log(&#39;[DEV]&#39;,...args);}}const DEFAULT_TIMINGS={scanDelayMin:700,scanDelayMax:5000,unfollowDelayMin:1000,unfollowDelayMax:3000,unfollowPauseEveryUsers:10,unfollowPauseMs:10000,};const PANEL_MARGIN=18;const MAX_RETRIES=3;const SVG={minimize:`&lt;svg viewBox=&quot;0 0 16 16&quot; width=&quot;12&quot; height=&quot;12&quot;&gt;&lt;rect x=&quot;2&quot; y=&quot;7&quot; width=&quot;12&quot; height=&quot;2&quot; rx=&quot;1&quot; fill=&quot;#000&quot; opacity=&quot;0.7&quot;/&gt;&lt;/svg&gt;`,close:`&lt;svg viewBox=&quot;0 0 16 16&quot; width=&quot;12&quot; height=&quot;12&quot;&gt;&lt;path d=&quot;M4 4l8 8M12 4l-8 8&quot; stroke=&quot;#000&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; opacity=&quot;0.7&quot;/&gt;&lt;/svg&gt;`,expand:`&lt;svg viewBox=&quot;0 0 16 16&quot; width=&quot;12&quot; height=&quot;12&quot;&gt;&lt;path d=&quot;M3 9h4V5H3v4zm6-4v4h4V5H9z&quot; fill=&quot;#000&quot; opacity=&quot;0.7&quot;/&gt;&lt;/svg&gt;`,gear:`&lt;svg viewBox=&quot;0 0 24 24&quot; width=&quot;16&quot; height=&quot;16&quot; fill=&quot;currentColor&quot;&gt;&lt;path d=&quot;M0 0h24v24H0z&quot; fill=&quot;none&quot; /&gt;&lt;path fill=&quot;currentColor&quot; d=&quot;m9.25 22l-.4-3.2q-.325-.125-.612-.3t-.563-.375L4.7 19.375l-2.75-4.75l2.575-1.95Q4.5 12.5 4.5 12.338v-.675q0-.163.025-.338L1.95 9.375l2.75-4.75l2.975 1.25q.275-.2.575-.375t.6-.3l.4-3.2h5.5l.4 3.2q.325.125.613.3t.562.375l2.975-1.25l2.75 4.75l-2.575 1.95q.025.175.025.338v.674q0 .163-.05.338l2.575 1.95l-2.75 4.75l-2.95-1.25q-.275.2-.575.375t-.6.3l-.4 3.2zm2.8-6.5q1.45 0 2.475-1.025T15.55 12t-1.025-2.475T12.05 8.5q-1.475 0-2.488 1.025T8.55 12t1.013 2.475T12.05 15.5&quot; /&gt;&lt;/svg&gt;`,check:`&lt;svg viewBox=&quot;0 0 16 16&quot; width=&quot;14&quot; height=&quot;14&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;3&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;polyline points=&quot;13.5 4.5 6 12 2.5 8.5&quot;/&gt;&lt;/svg&gt;`,personRemove:`&lt;svg viewBox=&quot;0 0 24 24&quot; width=&quot;48&quot; height=&quot;48&quot;&gt;&lt;path d=&quot;M0 0h24v24H0z&quot; fill=&quot;none&quot; /&gt;&lt;g fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;1.5&quot;&gt;&lt;path d=&quot;M15 8.5a5 5 0 1 0-10 0a5 5 0 0 0 10 0M14 19h7&quot; /&gt;&lt;path d=&quot;M3 20.5a7 7 0 0 1 11-5.745&quot; /&gt;&lt;/g&gt;&lt;/svg&gt;`,personRemoveSmall:`&lt;svg viewBox=&quot;0 0 24 24&quot; width=&quot;16&quot; height=&quot;16&quot; style=&quot;display:inline-block;vertical-align:middle;&quot;&gt;&lt;path d=&quot;M0 0h24v24H0z&quot; fill=&quot;none&quot; /&gt;&lt;g fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;1.5&quot;&gt;&lt;path d=&quot;M15 8.5a5 5 0 1 0-10 0a5 5 0 0 0 10 0M14 19h7&quot; /&gt;&lt;path d=&quot;M3 20.5a7 7 0 0 1 11-5.745&quot; /&gt;&lt;/g&gt;&lt;/svg&gt;`,warning:`&lt;svg viewBox=&quot;0 0 24 24&quot; width=&quot;48&quot; height=&quot;48&quot; fill=&quot;currentColor&quot;&gt;&lt;path d=&quot;M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z&quot;/&gt;&lt;/svg&gt;`,verified:`&lt;svg viewBox=&quot;0 0 24 24&quot; width=&quot;16&quot; height=&quot;16&quot; fill=&quot;#0095f6&quot; style=&quot;display:inline-block;vertical-align:middle;margin:0 2px;&quot;&gt;&lt;path d=&quot;M0 0h24v24H0z&quot; fill=&quot;none&quot; /&gt;&lt;path fill=&quot;currentColor&quot; d=&quot;M10.95 12.7L9.5 11.275Q9.225 11 8.813 11t-.713.3q-.275.275-.275.7t.275.7l2.15 2.15q.3.3.7.3t.7-.3l4.25-4.25q.3-.3.287-.7t-.287-.7q-.3-.3-.712-.312t-.713.287zm-2.8 9.05L6.7 19.3l-2.75-.6q-.375-.075-.6-.387t-.175-.688L3.45 14.8l-1.875-2.15q-.25-.275-.25-.65t.25-.65L3.45 9.2l-.275-2.825q-.05-.375.175-.688t.6-.387l2.75-.6l1.45-2.45q.2-.325.55-.438t.7.038l2.6 1.1l2.6-1.1q.35-.15.7-.038t.55.438L17.3 4.7l2.75.6q.375.075.6.388t.175.687L20.55 9.2l1.875 2.15q.25.275.25.65t-.25.65L20.55 14.8l.275 2.825q.05.375-.175.688t-.6.387l-2.75.6l-1.45 2.45q-.2.325-.55.438t-.7-.038l-2.6-1.1l-2.6 1.1q-.35.15-.7.038t-.55-.438&quot; /&gt;&lt;/svg&gt;`,chevronRight:`&lt;svg viewBox=&quot;0 0 24 24&quot; width=&quot;20&quot; height=&quot;20&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; style=&quot;display:inline-block;vertical-align:middle;&quot;&gt;&lt;polyline points=&quot;9 18 15 12 9 6&quot;/&gt;&lt;/svg&gt;`,timer:`&lt;svg viewBox=&quot;0 0 24 24&quot; width=&quot;18&quot; height=&quot;18&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; style=&quot;display:inline-block;vertical-align:middle;&quot;&gt;&lt;circle cx=&quot;12&quot; cy=&quot;12&quot; r=&quot;10&quot;/&gt;&lt;polyline points=&quot;12 6 12 12 16 14&quot;/&gt;&lt;/svg&gt;`,reload:`&lt;svg viewBox=&quot;0 0 24 24&quot; width=&quot;14&quot; height=&quot;14&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; style=&quot;display:inline-block;vertical-align:middle;&quot;&gt;&lt;path d=&quot;M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15&quot;/&gt;&lt;/svg&gt;`};const persisted=loadStored();const state={mode:&#39;idle&#39;,prevMode:&#39;idle&#39;,scanCancelled:false,progress:{current:0,total:0,label:&#39;Scanning&#39;,note:&#39;&#39;},waitUntil:0,waitReason:&#39;&#39;,users:[],selected:new Set(),filters:persisted.filters||{verified:false,},timings:{...DEFAULT_TIMINGS,...(persisted.timings||{})},panelPos:persisted.panelPos||null,minimized:Boolean(persisted.minimized),fullscreen:Boolean(persisted.fullscreen),error:&#39;&#39;,};let countdownTimer=null;let toastTimer=null;function loadStored(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):{};}catch{return{};}}function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({timings:state.timings,filters:state.filters,panelPos:state.panelPos,minimized:state.minimized,fullscreen:state.fullscreen,}));}catch{}}function setMinimized(val){state.minimized=val;persist();renderShell();}function pillLabel(){if(state.mode===&#39;scanning&#39;)return&#39;Scanning...&#39;;if(state.mode===&#39;unfollowing&#39;)return&#39;Unfollowing...&#39;;if(state.error)return&#39;Error&#39;;return&#39;Open&#39;;}function pillStateClass(){if(state.mode===&#39;scanning&#39;||state.mode===&#39;unfollowing&#39;)return&#39;iu-pill-dot--active&#39;;if(state.error)return&#39;iu-pill-dot--error&#39;;return&#39;&#39;;}function renderBody(){const body=document.querySelector(`#${APP_ID} [data-body]`);if(!body)return;if(state.mode===&#39;idle&#39;){body.innerHTML=renderWelcomeView();bindWelcomeEvents(body);}else if(state.mode===&#39;settings&#39;){body.innerHTML=renderSettingsView();bindSettingsEvents(body);}else{body.innerHTML=renderResultsView();bindResultsEvents(body);}if(state.mode===&#39;scanning&#39;||state.mode===&#39;unfollowing&#39;)startCountdown();else stopCountdown();}function renderWelcomeView(){if(state.error){return`
+        &lt;div class=&quot;iu-welcome&quot;&gt;
+          &lt;div class=&quot;iu-welcome-icon iu-welcome-icon--error&quot;&gt;
+            ${SVG.warning}
+          &lt;/div&gt;
+          &lt;div class=&quot;iu-welcome-text&quot;&gt;
+            &lt;h2&gt;Scan Failed&lt;/h2&gt;
+            &lt;p class=&quot;iu-welcome-description&quot;&gt;${escapeHTML(state.error)}&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;iu-welcome-action&quot;&gt;
+            &lt;button type=&quot;button&quot; class=&quot;iu-btn iu-btn-welcome&quot; data-action=&quot;scan&quot;&gt;Try Again&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      `;}return`
+      &lt;div class=&quot;iu-welcome&quot;&gt;
+        &lt;div class=&quot;iu-welcome-icon&quot;&gt;
+          ${SVG.personRemove}
+        &lt;/div&gt;
+        &lt;div class=&quot;iu-welcome-text&quot;&gt;
+          &lt;h2&gt;Threads&lt;br&gt;Unfollowers&lt;/h2&gt;
+          &lt;p class=&quot;iu-welcome-description&quot;&gt;Identify who doesn&#39;t follow you back on Threads and clean up your profile with ease and safety.&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;iu-welcome-action&quot;&gt;
+          &lt;button type=&quot;button&quot; class=&quot;iu-btn iu-btn-welcome&quot; data-action=&quot;scan&quot;&gt;Scan Now&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    `;}function bindWelcomeEvents(body){body.querySelector(&quot;[data-action=&#39;scan&#39;]&quot;)?.addEventListener(&#39;click&#39;,startScan);}function renderSettingsView(){return`
+      &lt;div class=&quot;iu-settings&quot;&gt;
+        &lt;div class=&quot;iu-settings-head&quot;&gt;
+          &lt;h2&gt;Configuration&lt;/h2&gt;
+          &lt;p&gt;Manage scan intervals.&lt;/p&gt;
+          &lt;button type=&quot;button&quot; class=&quot;iu-reset-btn&quot; data-action=&quot;restore-defaults&quot;&gt;Reset All&lt;/button&gt;
+        &lt;/div&gt;
+        
+        &lt;div class=&quot;iu-settings-form&quot;&gt;
+          &lt;div class=&quot;iu-settings-section-header&quot;&gt;
+            &lt;span class=&quot;iu-svg-icon text-primary&quot;&gt;${SVG.timer}&lt;/span&gt;
+            &lt;h3&gt;RATE LIMITING (MILLISECONDS)&lt;/h3&gt;
+          &lt;/div&gt;
+          
+          &lt;div class=&quot;iu-settings-field&quot;&gt;
+            &lt;div class=&quot;iu-settings-label-row&quot;&gt;
+              &lt;label&gt;Min Scan Delay&lt;/label&gt;
+              &lt;span class=&quot;iu-settings-val&quot; data-val=&quot;scanDelayMin&quot;&gt;${state.timings.scanDelayMin}ms&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;input type=&quot;range&quot; min=&quot;500&quot; max=&quot;30000&quot; step=&quot;100&quot; data-setting=&quot;scanDelayMin&quot; value=&quot;${state.timings.scanDelayMin}&quot;&gt;
+            &lt;p class=&quot;iu-settings-help&quot;&gt;Minimum wait time between profile requests.&lt;/p&gt;
+          &lt;/div&gt;
+
+          &lt;div class=&quot;iu-settings-field&quot;&gt;
+            &lt;div class=&quot;iu-settings-label-row&quot;&gt;
+              &lt;label&gt;Max Scan Delay&lt;/label&gt;
+              &lt;span class=&quot;iu-settings-val&quot; data-val=&quot;scanDelayMax&quot;&gt;${state.timings.scanDelayMax}ms&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;input type=&quot;range&quot; min=&quot;1000&quot; max=&quot;60000&quot; step=&quot;500&quot; data-setting=&quot;scanDelayMax&quot; value=&quot;${state.timings.scanDelayMax}&quot;&gt;
+            &lt;p class=&quot;iu-settings-help&quot;&gt;Maximum random jitter for request intervals.&lt;/p&gt;
+          &lt;/div&gt;
+
+          &lt;div class=&quot;iu-settings-field&quot;&gt;
+            &lt;div class=&quot;iu-settings-label-row&quot;&gt;
+              &lt;label&gt;Min Unfollow Delay&lt;/label&gt;
+              &lt;div class=&quot;iu-settings-num-input-wrapper&quot;&gt;
+                &lt;input type=&quot;number&quot; min=&quot;1000&quot; step=&quot;500&quot; data-setting=&quot;unfollowDelayMin&quot; value=&quot;${state.timings.unfollowDelayMin}&quot;&gt;
+                &lt;span&gt;ms&lt;/span&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;p class=&quot;iu-settings-help&quot;&gt;Safe interval before triggering an unfollow action.&lt;/p&gt;
+          &lt;/div&gt;
+
+          &lt;div class=&quot;iu-settings-field&quot;&gt;
+            &lt;div class=&quot;iu-settings-label-row&quot;&gt;
+              &lt;label&gt;Max Unfollow Delay&lt;/label&gt;
+              &lt;div class=&quot;iu-settings-num-input-wrapper&quot;&gt;
+                &lt;input type=&quot;number&quot; min=&quot;2000&quot; step=&quot;500&quot; data-setting=&quot;unfollowDelayMax&quot; value=&quot;${state.timings.unfollowDelayMax}&quot;&gt;
+                &lt;span&gt;ms&lt;/span&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;p class=&quot;iu-settings-help&quot;&gt;Maximum wait time to mimic human behavior.&lt;/p&gt;
+          &lt;/div&gt;
+
+          &lt;div class=&quot;iu-settings-field&quot;&gt;
+            &lt;div class=&quot;iu-settings-label-row&quot;&gt;
+              &lt;div class=&quot;iu-settings-label-stack&quot;&gt;
+                &lt;label&gt;Long Delay&lt;/label&gt;
+                &lt;span class=&quot;iu-settings-badge-green&quot;&gt;Multiple actions required long delay&lt;/span&gt;
+              &lt;/div&gt;
+              &lt;span class=&quot;iu-settings-val&quot; data-val=&quot;unfollowPauseMs&quot;&gt;${state.timings.unfollowPauseMs}ms&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;input type=&quot;range&quot; min=&quot;10000&quot; max=&quot;1800000&quot; step=&quot;10000&quot; data-setting=&quot;unfollowPauseMs&quot; value=&quot;${state.timings.unfollowPauseMs}&quot;&gt;
+            &lt;p class=&quot;iu-settings-help&quot;&gt;Wait time after every 50 unfollows to avoid shadowbans.&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;iu-settings-actions&quot;&gt;
+          &lt;button type=&quot;button&quot; class=&quot;iu-btn-save&quot; data-action=&quot;save-settings&quot;&gt;Save Changes&lt;/button&gt;
+          &lt;button type=&quot;button&quot; class=&quot;iu-btn-discard&quot; data-action=&quot;cancel-settings&quot;&gt;Discard&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    `;}function bindSettingsEvents(body){body.querySelectorAll(&#39;input[type=&quot;range&quot;]&#39;).forEach(slider=&gt;{slider.addEventListener(&#39;input&#39;,e=&gt;{const name=slider.getAttribute(&#39;data-setting&#39;);const display=body.querySelector(`[data-val=&quot;${name}&quot;]`);if(display){display.textContent=`${e.target.value}ms`;}});});body.querySelector(&quot;[data-action=&#39;save-settings&#39;]&quot;)?.addEventListener(&#39;click&#39;,()=&gt;{let valid=true;body.querySelectorAll(&#39;[data-setting]&#39;).forEach(input=&gt;{const key=input.getAttribute(&#39;data-setting&#39;);const val=Number(input.value);if(Number.isFinite(val)&amp;&amp;val&gt;=0){state.timings[key]=val;}else{valid=false;}});if(!valid){toast(&#39;Please enter valid non-negative numbers&#39;);return;}persist();toast(&#39;Settings saved&#39;);state.mode=state.prevMode;renderShell();});body.querySelector(&quot;[data-action=&#39;cancel-settings&#39;]&quot;)?.addEventListener(&#39;click&#39;,()=&gt;{state.mode=state.prevMode;renderShell();});body.querySelector(&quot;[data-action=&#39;restore-defaults&#39;]&quot;)?.addEventListener(&#39;click&#39;,()=&gt;{Object.assign(state.timings,DEFAULT_TIMINGS);renderBody();toast(&#39;Default timings restored&#39;);});}function statusClass(){if(state.mode===&#39;scanning&#39;||state.mode===&#39;unfollowing&#39;)return&#39;active&#39;;if(state.mode===&#39;stopped&#39;)return&#39;stopped&#39;;if(state.mode===&#39;completed&#39;)return&#39;completed&#39;;return&#39;idle&#39;;}function statusTitle(){if(state.mode===&#39;scanning&#39;)return&#39;Scanning&#39;;if(state.mode===&#39;unfollowing&#39;)return&#39;Unfollowing&#39;;if(state.mode===&#39;stopped&#39;)return&#39;Stopped&#39;;if(state.mode===&#39;completed&#39;)return&#39;Completed&#39;;return&#39;Idle&#39;;}function statusDetails(){if(state.mode===&#39;scanning&#39;){return`${state.progress.current} users scanned.`;}if(state.mode===&#39;unfollowing&#39;){return`@${escapeHTML(state.progress.note || &#39;&#39;)} (${state.progress.current} / ${state.progress.total})`;}if(state.mode===&#39;stopped&#39;){return&#39;Process stopped by user.&#39;;}if(state.mode===&#39;completed&#39;){return state.progress.note||&#39;Process completed successfully.&#39;;}return&#39;&#39;;}function showStopButton(){return state.mode===&#39;scanning&#39;||state.mode===&#39;unfollowing&#39;;}function showReloadButton(){return state.mode===&#39;completed&#39;||state.mode===&#39;stopped&#39;;}function isAllSelected(){const display=getDisplayUsers();if(!display.length)return false;return display.every(user=&gt;state.selected.has(user.id));}function renderResultsView(){const display=getDisplayUsers();const selectedCount=display.filter(u=&gt;state.selected.has(u.id)).length;return`
+      &lt;div class=&quot;iu-results&quot;&gt;
+        &lt;div class=&quot;iu-status-card&quot;&gt;
+          &lt;div class=&quot;iu-status-row&quot;&gt;
+            &lt;div class=&quot;iu-status-left&quot;&gt;
+              &lt;span class=&quot;iu-status-dot iu-status-dot--${statusClass()}&quot;&gt;&lt;/span&gt;
+              &lt;span class=&quot;iu-status-title&quot;&gt;${statusTitle()}&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;iu-status-right&quot; data-countdown&gt;&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;iu-status-details-row&quot;&gt;
+            &lt;span class=&quot;iu-status-details&quot;&gt;${statusDetails()}&lt;/span&gt;
+            ${showStopButton() ? `&lt;button type=&quot;button&quot;class=&quot;iu-status-btn-stop&quot;data-action=&quot;stop-process&quot;&gt;Stop&lt;/button&gt;` : &#39;&#39;}
+            ${showReloadButton() ? `&lt;button type=&quot;button&quot; class=&quot;iu-status-btn-reload&quot; data-action=&quot;rescan&quot; aria-label=&quot;Rescan&quot; title=&quot;Rescan&quot;&gt;${SVG.reload}&lt;/button&gt;` : &#39;&#39;}
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;section class=&quot;iu-filter-section&quot;&gt;
+          &lt;button type=&quot;button&quot; class=&quot;iu-filter-verified ${state.filters.verified ? &#39;iu-filter-verified--active&#39; : &#39;&#39;}&quot; data-action=&quot;toggle-verified&quot;&gt;
+            ${SVG.verified}
+            &lt;span&gt;Verified Only&lt;/span&gt;
+          &lt;/button&gt;
+        &lt;/section&gt;
+
+        &lt;div class=&quot;iu-list-header-bar&quot;&gt;
+          &lt;button type=&quot;button&quot; class=&quot;iu-select-all-btn&quot; data-action=&quot;toggle-select-all&quot;&gt;
+            ${isAllSelected() ? &#39;Deselect All&#39; : &#39;Select All&#39;}
+          &lt;/button&gt;
+          &lt;span class=&quot;iu-list-header-info&quot;&gt;${display.length} non-followers found&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;iu-list&quot; data-list&gt;${renderUserList(display)}&lt;/div&gt;
+
+        &lt;div class=&quot;iu-fab-container&quot;&gt;
+          &lt;button type=&quot;button&quot; class=&quot;iu-fab-btn&quot; data-action=&quot;unfollow-selected&quot; ${selectedCount &gt; 0 ? &#39;&#39; : &#39;disabled&#39;}&gt;
+            ${SVG.personRemoveSmall}
+            &lt;span&gt;Unfollow Selected&lt;/span&gt;
+          &lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    `;}function renderUserList(display){if(!display.length){if(state.mode===&#39;scanning&#39;){return`&lt;div class=&quot;iu-list-empty&quot;&gt;Loading the people you follow...&lt;/div&gt;`;}return`&lt;div class=&quot;iu-list-empty&quot;&gt;No users match your filters.&lt;/div&gt;`;}return display.map(renderUserRow).join(&#39;&#39;);}function renderUserRow(user){const verifiedIcon=user.is_verified?`&lt;span&gt;${SVG.verified}&lt;/span&gt;`:&#39;&#39;;return`
+      &lt;div class=&quot;iu-row&quot; data-row=&quot;${escapeAttr(user.id)}&quot;&gt;
+        &lt;label class=&quot;iu-row-checkbox&quot;&gt;
+          &lt;input type=&quot;checkbox&quot; data-select=&quot;${escapeAttr(user.id)}&quot; ${state.selected.has(user.id) ? &#39;checked&#39; : &#39;&#39;}&gt;
+          &lt;span class=&quot;iu-checkbox-custom&quot;&gt;${SVG.check}&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;img class=&quot;iu-avatar&quot; src=&quot;${escapeAttr(user.profile_pic_url || &#39;&#39;)}&quot; alt=&quot;&quot; loading=&quot;lazy&quot; onerror=&quot;this.style.visibility=&#39;hidden&#39;&quot;&gt;
+        &lt;div class=&quot;iu-row-text&quot;&gt;
+          &lt;div class=&quot;iu-row-name-wrapper&quot;&gt;
+            &lt;span class=&quot;iu-row-name&quot;&gt;
+              &lt;a href=&quot;https://www.threads.com/@${encodeURIComponent(user.username)}&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;&gt;@${escapeHTML(user.username)}&lt;/a&gt;
+            &lt;/span&gt;
+            ${verifiedIcon}
+          &lt;/div&gt;
+          &lt;div class=&quot;iu-row-sub&quot;&gt;${escapeHTML(user.full_name || &#39;&#39;)}&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    `;}function bindResultsEvents(body){body.querySelector(&quot;[data-action=&#39;toggle-verified&#39;]&quot;)?.addEventListener(&#39;click&#39;,()=&gt;{state.filters.verified=!state.filters.verified;persist();renderBody();});body.querySelector(&quot;[data-action=&#39;toggle-select-all&#39;]&quot;)?.addEventListener(&#39;click&#39;,()=&gt;{if(isAllSelected()){clearSelection();}else{selectAllVisible();}renderBody();});body.addEventListener(&#39;click&#39;,event=&gt;{const row=event.target.closest(&#39;.iu-row&#39;);if(!row)return;if(event.target.closest(&#39;a&#39;)){return;}const checkbox=row.querySelector(&#39;input[data-select]&#39;);if(!checkbox)return;if(!event.target.closest(&#39;.iu-row-checkbox&#39;)){checkbox.checked=!checkbox.checked;}const id=checkbox.getAttribute(&#39;data-select&#39;);if(id){if(checkbox.checked)state.selected.add(id);else state.selected.delete(id);}const display=getDisplayUsers();const selectedCount=display.filter(u=&gt;state.selected.has(u.id)).length;const fab=body.querySelector(&quot;[data-action=&#39;unfollow-selected&#39;]&quot;);if(fab){fab.disabled=selectedCount===0;}const selectAllBtn=body.querySelector(&quot;[data-action=&#39;toggle-select-all&#39;]&quot;);if(selectAllBtn){selectAllBtn.textContent=isAllSelected()?&#39;Deselect All&#39;:&#39;Select All&#39;;}});body.querySelector(&quot;[data-action=&#39;unfollow-selected&#39;]&quot;)?.addEventListener(&#39;click&#39;,startUnfollowSelected);body.querySelector(&quot;[data-action=&#39;stop-process&#39;]&quot;)?.addEventListener(&#39;click&#39;,()=&gt;{state.scanCancelled=true;});body.querySelector(&quot;[data-action=&#39;rescan&#39;]&quot;)?.addEventListener(&#39;click&#39;,()=&gt;{startScan();});}function selectAllVisible(){getDisplayUsers().forEach(user=&gt;state.selected.add(user.id));}function clearSelection(){state.selected.clear();}function getDisplayUsers(){return state.users.filter(u=&gt;!u.follows_viewer).filter(u=&gt;!state.filters.verified||u.is_verified).sort((a,b)=&gt;a.username.localeCompare(b.username));}let cachedTokens=null;function getPageTokens(){if(cachedTokens)return cachedTokens;const tokens={webSessionId:&#39;&#39;,jazoest:&#39;&#39;,fbid:&#39;&#39;,username:&#39;&#39;,followingCount:0,lsd:&#39;&#39;,fbDtsg:&#39;&#39;,__req:&#39;&#39;,__hs:&#39;&#39;,__ccg:&#39;&#39;,__rev:&#39;&#39;,__s:&#39;&#39;,__hsi:&#39;&#39;,__dyn:&#39;&#39;,__spin_r:&#39;&#39;,};if(window.LSD?.token)tokens.lsd=window.LSD.token;if(window.__LSD__?.token)tokens.lsd=window.__LSD__.token;if(window.DTSGInitData?.token)tokens.fbDtsg=window.DTSGInitData.token;if(window.__DTSGInitData__?.token)tokens.fbDtsg=window.__DTSGInitData__.token;const scripts=document.querySelectorAll(&#39;script&#39;);const metaPatterns={__req:[/&quot;__req&quot;:&quot;([^&quot;]+)&quot;/,/__req=([^&amp;]+)/],__hs:[/&quot;__hs&quot;:&quot;([^&quot;]+)&quot;/,/__hs=([^&amp;]+)/],__ccg:[/&quot;__ccg&quot;:&quot;([^&quot;]+)&quot;/,/__ccg=([^&amp;]+)/],__rev:[/&quot;__rev&quot;:&quot;([^&quot;]+)&quot;/,/__rev=([^&amp;]+)/],__s:[/&quot;__s&quot;:&quot;([^&quot;]+)&quot;/,/__s=([^&amp;]+)/],__hsi:[/&quot;__hsi&quot;:&quot;([^&quot;]+)&quot;/,/__hsi=([^&amp;]+)/],__dyn:[/&quot;__dyn&quot;:&quot;([^&quot;]+)&quot;/,/__dyn=([^&amp;]+)/],__spin_r:[/&quot;__spin_r&quot;:&quot;([^&quot;]+)&quot;/,/__spin_r=([^&amp;]+)/],};const fbDtsgPattern=/NAf[a-zA-Z0-9_\-\/]+(?::|%3A)\d+(?::|%3A)\d+/;for(const script of scripts){const text=script.textContent||&#39;&#39;;if(!text)continue;if(!tokens.webSessionId){const match=text.match(/&quot;web_session_id&quot;:&quot;([^&quot;]+)&quot;/)||text.match(/&quot;x-web-session-id&quot;:&quot;([^&quot;]+)&quot;/);if(match)tokens.webSessionId=match[1];}if(!tokens.jazoest){const match=text.match(/jazoest=([0-9]+)/)||text.match(/&quot;jazoest&quot;:&quot;([^&quot;]+)&quot;/);if(match)tokens.jazoest=match[1];}if(!tokens.fbid){const match=text.match(/&quot;ACCOUNT_ID&quot;:&quot;([^&quot;]+)&quot;/)||text.match(/&quot;USER_ID&quot;:&quot;([^&quot;]+)&quot;/)||text.match(/&quot;fbid&quot;:&quot;([^&quot;]+)&quot;/);if(match&amp;&amp;match[1]&amp;&amp;match[1]!==&#39;0&#39;)tokens.fbid=match[1];}if(!tokens.username){const match=text.match(/&quot;username&quot;:&quot;([^&quot;]+)&quot;/);if(match)tokens.username=match[1];}if(!tokens.followingCount){const match=text.match(/&quot;following_count&quot;:\s*(\d+)/);if(match)tokens.followingCount=parseInt(match[1],10);}if(!tokens.lsd){const match=text.match(/&quot;LSD&quot;,\[\],{&quot;token&quot;:&quot;([^&quot;]+)&quot;}/)||text.match(/&quot;lsd&quot;:&quot;([^&quot;]+)&quot;/);if(match)tokens.lsd=match[1];}if(!tokens.fbDtsg){const match=text.match(fbDtsgPattern)||text.match(/&quot;DTSGInitData&quot;,\[\],{&quot;token&quot;:&quot;([^&quot;]+)&quot;}/)||text.match(/&quot;fb_dtsg&quot;:&quot;([^&quot;]+)&quot;/);if(match)tokens.fbDtsg=decodeURIComponent(match[1]||match[0]);}for(const key in metaPatterns){if(!tokens[key]){for(const pattern of metaPatterns[key]){const match=text.match(pattern);if(match){tokens[key]=match[1];break;}}}}}const html=document.body?.innerHTML||&#39;&#39;;if(html){if(!tokens.lsd){const match=html.match(/&quot;LSD&quot;,\[\],{&quot;token&quot;:&quot;([^&quot;]+)&quot;}/)||html.match(/&quot;lsd&quot;:&quot;([^&quot;]+)&quot;/)||html.match(/name=&quot;lsd&quot; value=&quot;([^&quot;]+)&quot;/);if(match)tokens.lsd=match[1];}if(!tokens.fbDtsg){const match=html.match(fbDtsgPattern)||html.match(/&quot;DTSGInitData&quot;,\[\],{&quot;token&quot;:&quot;([^&quot;]+)&quot;}/)||html.match(/&quot;fb_dtsg&quot;:&quot;([^&quot;]+)&quot;/)||html.match(/name=&quot;fb_dtsg&quot; value=&quot;([^&quot;]+)&quot;/);if(match)tokens.fbDtsg=decodeURIComponent(match[1]||match[0]);}for(const key in metaPatterns){if(!tokens[key]){for(const pattern of metaPatterns[key]){const match=html.match(pattern);if(match){tokens[key]=match[1];break;}}}}}cachedTokens=tokens;return tokens;}function getWebSessionId(){return getPageTokens().webSessionId;}function getJazoest(){return getPageTokens().jazoest;}function getFbid(viewerId){return getPageTokens().fbid||viewerId||&#39;0&#39;;}function getLSDToken(){return getPageTokens().lsd||null;}function getFbDtsg(){return getPageTokens().fbDtsg||null;}function getCookie(name){const value=`; ${document.cookie}`;const parts=value.split(`; ${name}=`);if(parts.length===2)return decodeURIComponent(parts.pop().split(&#39;;&#39;).shift());return null;}function getLoggedInUsername(){const link=document.querySelector(&#39;a[href^=&quot;/@&quot;]&#39;);if(link)return link.getAttribute(&#39;href&#39;).replace(&#39;/@&#39;,&#39;&#39;).split(&#39;?&#39;)[0];return getPageTokens().username||null;}function cleanJsonText(text){let cleaned=text.trim();if(cleaned.startsWith(&#39;for (;;);&#39;))return cleaned.substring(9);if(cleaned.startsWith(&#39;while (1);&#39;))return cleaned.substring(10);if(cleaned.startsWith(&quot;)]}&#39;&quot;))return cleaned.substring(4);return cleaned;}async function parseResponse(response){const text=await response.text();const cleaned=cleanJsonText(text);try{return JSON.parse(cleaned);}catch(e){const lines=cleaned.split(&#39;\n&#39;);for(const line of lines){try{const parsed=JSON.parse(cleanJsonText(line));if(parsed?.data)return parsed;}catch(err){}}throw e;}}function parseRetryAfter(value){if(!value)return 0;const seconds=Number(value);if(Number.isFinite(seconds))return Math.max(0,seconds*1000);const date=Date.parse(value);if(!Number.isNaN(date))return Math.max(0,date-Date.now());return 0;}function sleep(ms){return new Promise(resolve=&gt;setTimeout(resolve,Math.max(0,ms)));}function randomBetween(min,max){const lo=Math.min(min,max);const hi=Math.max(min,max);return Math.floor(Math.random()*(hi-lo+1))+lo;}async function sleepWithCountdown(ms,reasonKey){state.waitUntil=Date.now()+ms;state.waitReason=reasonKey;updateCountdownDOM();const start=Date.now();while(Date.now()-start&lt;ms){if(state.scanCancelled)break;await sleep(Math.min(250,ms-(Date.now()-start)));}state.waitUntil=0;state.waitReason=&#39;&#39;;updateCountdownDOM();}async function fetchWithRetry(url,options,parseJson=true){let attempt=0;while(true){try{const response=await fetch(url,options);if(response.ok){if(parseJson){const json=await parseResponse(response);if(json?.errors&amp;&amp;json.errors.length&gt;0){throw new Error(json.errors[0].message||&#39;GraphQL execution error&#39;);}return json;}return response;}if(response.status===429||(response.status&gt;=500&amp;&amp;response.status&lt;600)){if(attempt&gt;=MAX_RETRIES){throw new Error(response.status===429?&#39;Rate-limited by Threads. Please try again later.&#39;:`HTTP error ${response.status}`);}const retryAfter=parseRetryAfter(response.headers.get(&#39;retry-after&#39;));const wait=retryAfter||Math.min(60000,3000*Math.pow(2,attempt));await sleepWithCountdown(wait,&#39;scanPause&#39;);attempt+=1;continue;}throw new Error(`Request failed with HTTP status ${response.status}`);}catch(error){if(state.scanCancelled)throw new Error(&#39;Stopped by user&#39;);if(attempt&gt;=MAX_RETRIES)throw error;attempt+=1;await sleep(2000);}}}async function startScan(){state.error=&#39;&#39;;state.mode=&#39;scanning&#39;;state.scanCancelled=false;state.users=[];state.selected.clear();state.progress={current:0,total:0,label:&#39;Scanning&#39;,note:&#39;&#39;,};renderBody();try{const viewerId=getCookie(&#39;ds_user_id&#39;);if(!viewerId)throw new Error(&#39;Could not read login cookie. Make sure you are signed in.&#39;);const csrf=getCookie(&#39;csrftoken&#39;);if(!csrf)throw new Error(&#39;csrftoken cookie is missing.&#39;);const username=getLoggedInUsername();log(&#39;Found logged in username:&#39;,username);const totalFollowing=await getFollowingCount(username,viewerId);log(&#39;Found total following count:&#39;,totalFollowing);state.progress.total=totalFollowing;updateProgressDOM();const onPage=(results,totalGuess)=&gt;{state.progress={current:results.length,total:totalGuess||totalFollowing||0,label:&#39;Scanning&#39;,note:&#39;&#39;,};updateProgressDOM();};const following=await fetchFollowingWithBackStatus(viewerId,onPage,totalFollowing);if(state.scanCancelled){state.users=following;state.mode=&#39;stopped&#39;;state.scanCancelled=false;renderBody();return;}state.users=following;state.mode=&#39;completed&#39;;const nonFollowers=state.users.filter(u=&gt;!u.follows_viewer).length;state.progress.note=`Scan completed. ${nonFollowers} non-followers found.`;toast(`${nonFollowers} non-followers found`);renderBody();}catch(error){console.error(&#39;[tu] scan failed:&#39;,error);state.error=error?.message||String(error)||&#39;Scan failed&#39;;state.mode=&#39;idle&#39;;renderBody();}}async function fetchFollowingCount(username){if(!username)return 0;try{const response=await fetch(location.origin+&#39;/@&#39;+username);if(!response.ok)return 0;const html=await response.text();const match=html.match(/&quot;following_count&quot;:\s*(\d+)/)||html.match(/&quot;following&quot;:\s*\{\s*&quot;count&quot;:\s*(\d+)/);if(match){return parseInt(match[1],10);}}catch(e){log(&#39;Failed to fetch following count:&#39;,e);}return 0;}async function getFollowingCount(username,userId){const scripts=document.querySelectorAll(&#39;script&#39;);for(const script of scripts){const text=script.textContent||&#39;&#39;;if(text.includes(userId)){const match=text.match(/&quot;following_count&quot;:\s*(\d+)/);if(match)return parseInt(match[1],10);}}if(username){return fetchFollowingCount(username);}return 0;}function normalizeUser(raw){return{id:String(raw.id||raw.pk||raw.pk_id||&#39;&#39;),username:String(raw.username||&#39;&#39;),full_name:String(raw.full_name||&#39;&#39;),profile_pic_url:String(raw.profile_pic_url||raw.profile_pic_url_hd||&#39;&#39;),is_verified:Boolean(raw.is_verified),is_private:Boolean(raw.text_post_app_is_private??raw.is_private),follows_viewer:Boolean(raw.friendship_status?.followed_by),};}function dedupe(list){const seen=new Set();return list.filter(u=&gt;{if(!u.id||seen.has(u.id))return false;seen.add(u.id);return true;});}async function fetchFollowingWithBackStatus(viewerId,onPage,initialTotal=0){const results=[];let cursor=&#39;&#39;;let page=0;let totalGuess=initialTotal;const csrf=getCookie(&#39;csrftoken&#39;);if(!csrf)throw new Error(&#39;csrftoken cookie is missing.&#39;);const pageTokens=getPageTokens();while(true){if(state.scanCancelled){return results;}const isFirst=page===0;const docId=isFirst?&#39;27111011515218333&#39;:&#39;27033450226310257&#39;;const friendlyName=isFirst?&#39;BarcelonaFriendshipsFollowingTabQuery&#39;:&#39;BarcelonaFriendshipsFollowingTabRefetchableQuery&#39;;const variables=isFirst?{first:24,userID:viewerId,__relay_internal__pv__BarcelonaIsInternalUserrelayprovider:false,__relay_internal__pv__BarcelonaIsLoggedInrelayprovider:true,__relay_internal__pv__BarcelonaIsCrawlerrelayprovider:false,__relay_internal__pv__BarcelonaShouldShowFediverseListsrelayprovider:true,}:{after:cursor,first:16,id:viewerId,__relay_internal__pv__BarcelonaIsInternalUserrelayprovider:false,__relay_internal__pv__BarcelonaIsLoggedInrelayprovider:true,__relay_internal__pv__BarcelonaIsCrawlerrelayprovider:false,};const headers={accept:&#39;*/*&#39;,&#39;content-type&#39;:&#39;application/x-www-form-urlencoded&#39;,&#39;x-asbd-id&#39;:&#39;359341&#39;,&#39;x-csrftoken&#39;:csrf,&#39;x-fb-friendly-name&#39;:friendlyName,&#39;x-fb-lsd&#39;:pageTokens.lsd||&#39;&#39;,&#39;x-ig-app-id&#39;:&#39;238260118697367&#39;,&#39;x-requested-with&#39;:&#39;XMLHttpRequest&#39;,};const bodyParams=new URLSearchParams();bodyParams.append(&#39;lsd&#39;,pageTokens.lsd||&#39;&#39;);if(pageTokens.fbDtsg)bodyParams.append(&#39;fb_dtsg&#39;,pageTokens.fbDtsg);bodyParams.append(&#39;av&#39;,pageTokens.fbid||viewerId||&#39;0&#39;);bodyParams.append(&#39;__user&#39;,&#39;0&#39;);bodyParams.append(&#39;__a&#39;,&#39;1&#39;);bodyParams.append(&#39;fb_api_caller_class&#39;,&#39;RelayModern&#39;);bodyParams.append(&#39;fb_api_req_friendly_name&#39;,friendlyName);bodyParams.append(&#39;variables&#39;,JSON.stringify(variables));bodyParams.append(&#39;doc_id&#39;,docId);const json=await fetchWithRetry(location.origin+&#39;/graphql/query&#39;,{method:&#39;POST&#39;,credentials:&#39;include&#39;,headers,body:bodyParams.toString(),});const userObj=json.data?.fetch__XDTUserDict||json.data?.user||json.data?.node;const edge=userObj?.following;if(!edge?.edges){throw new Error(&#39;Response format is invalid or scan was blocked.&#39;);}const users=edge.edges.map(item=&gt;normalizeUser(item.node)).filter(u=&gt;u.id&amp;&amp;u.username);results.push(...users);state.users=dedupe(results);onPage(state.users,totalGuess);cursor=edge.page_info?.end_cursor||&#39;&#39;;page+=1;if(!edge.page_info?.has_next_page||!cursor){break;}const nextDelay=randomBetween(state.timings.scanDelayMin,state.timings.scanDelayMax);await sleepWithCountdown(nextDelay,&#39;nextActionIn&#39;);}return dedupe(results);}async function startUnfollowSelected(){const selectedUsers=state.users.filter(user=&gt;!user.follows_viewer&amp;&amp;state.selected.has(user.id));if(!selectedUsers.length)return;const csrf=getCookie(&#39;csrftoken&#39;);if(!csrf)throw new Error(&#39;csrftoken cookie is missing.&#39;);const pageTokens=getPageTokens();state.mode=&#39;unfollowing&#39;;state.scanCancelled=false;state.progress={current:0,total:selectedUsers.length,label:&#39;Unfollowing&#39;,note:selectedUsers[0]?.username||&#39;&#39;,};renderBody();let completedCount=0;for(let index=0;index&lt;selectedUsers.length;index+=1){const user=selectedUsers[index];if(state.scanCancelled)break;state.progress={current:index+1,total:selectedUsers.length,label:&#39;Unfollowing&#39;,note:user.username,};updateProgressDOM();try{await unfollowUser(user,{csrf,lsdToken:pageTokens.lsd,fbDtsg:pageTokens.fbDtsg,webSessionId:pageTokens.webSessionId,viewerFbid:pageTokens.fbid||&#39;0&#39;,});state.selected.delete(user.id);state.users=state.users.filter(u=&gt;u.id!==user.id);completedCount+=1;}catch(error){console.error(&#39;[tu] unfollow failed:&#39;,error);toast(`Failed to unfollow @${user.username}: ${error.message || error}`);break;}if(index&lt;selectedUsers.length-1&amp;&amp;!state.scanCancelled){const delay=randomBetween(state.timings.unfollowDelayMin,state.timings.unfollowDelayMax);await sleepWithCountdown(delay,&#39;nextActionIn&#39;);if(state.timings.unfollowPauseEveryUsers&gt;0&amp;&amp;(index+1)%state.timings.unfollowPauseEveryUsers===0){await sleepWithCountdown(state.timings.unfollowPauseMs,&#39;scanPause&#39;);}}}if(state.scanCancelled){state.mode=&#39;stopped&#39;;}else{state.mode=&#39;completed&#39;;state.progress.note=`Successfully unfollowed ${completedCount} accounts.`;toast(`Unfollowed ${completedCount} accounts.`);}state.scanCancelled=false;renderBody();}async function unfollowUser(user,tokens){const pageTokens=getPageTokens();const variables=JSON.stringify({target_user_id:user.id,media_id_attribution:null,container_module:&#39;ig_text_feed_profile&#39;,ranking_info_token:null,barcelona_source_quote_post_id:null,barcelona_source_reply_id:null,});const requestMeta={lsd:tokens.lsdToken||pageTokens.lsd||&#39;&#39;,av:tokens.viewerFbid||pageTokens.fbid||&#39;0&#39;,__user:&#39;0&#39;,__a:&#39;1&#39;,__req:pageTokens.__req||&#39;4g&#39;,__hs:pageTokens.__hs||&#39;20631.HYP%3Abarcelona_web_pkg.2.1...0&#39;,dpr:&#39;2&#39;,__ccg:pageTokens.__ccg||&#39;UNKNOWN&#39;,__rev:pageTokens.__rev||&#39;1042258302&#39;,__s:pageTokens.__s||tokens.webSessionId||pageTokens.webSessionId||&#39;&#39;,__hsi:pageTokens.__hsi,__dyn:pageTokens.__dyn,__csr:pageTokens.__csr||&#39;&#39;,__hsdp:pageTokens.__hsdp||&#39;&#39;,__hblp:pageTokens.__hblp||&#39;&#39;,__sjsp:pageTokens.__sjsp||&#39;&#39;,__comet_req:&#39;29&#39;,fb_dtsg:tokens.fbDtsg||pageTokens.fbDtsg||&#39;&#39;,jazoest:pageTokens.jazoest||&#39;&#39;,__spin_r:pageTokens.__spin_r||&#39;1042258302&#39;,__spin_b:&#39;trunk&#39;,__spin_t:String(Math.floor(Date.now()/1000)),__jssesw:&#39;3&#39;,__crn:&#39;comet.threads.BarcelonaProfileThreadsColumnRoute&#39;,fb_api_caller_class:&#39;RelayModern&#39;,fb_api_req_friendly_name:&#39;useTHFollowMutationUnfollowMutation&#39;,server_timestamps:&#39;true&#39;,variables,doc_id:&#39;25812542025061756&#39;,};const bodyParams=new URLSearchParams();Object.entries(requestMeta).forEach(([key,value])=&gt;{if(value||value===0)bodyParams.append(key,String(value));});const headers={accept:&#39;*/*&#39;,&#39;content-type&#39;:&#39;application/x-www-form-urlencoded&#39;,&#39;x-asbd-id&#39;:&#39;359341&#39;,&#39;x-csrftoken&#39;:tokens.csrf,&#39;x-fb-friendly-name&#39;:&#39;useTHFollowMutationUnfollowMutation&#39;,&#39;x-fb-lsd&#39;:tokens.lsdToken||pageTokens.lsd||&#39;&#39;,&#39;x-ig-app-id&#39;:&#39;238260118697367&#39;,&#39;x-requested-with&#39;:&#39;XMLHttpRequest&#39;,};if(tokens.webSessionId||pageTokens.webSessionId){headers[&#39;x-web-session-id&#39;]=tokens.webSessionId||pageTokens.webSessionId;}await fetchWithRetry(location.origin+&#39;/api/graphql&#39;,{method:&#39;POST&#39;,credentials:&#39;include&#39;,headers,body:bodyParams.toString(),});}function startCountdown(){if(countdownTimer)return;countdownTimer=setInterval(updateCountdownDOM,500);}function stopCountdown(){if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null;}}function updateCountdownDOM(){const node=document.querySelector(`#${APP_ID} [data-countdown]`);if(!node)return;if(!state.waitUntil){node.textContent=&#39;&#39;;return;}const remaining=Math.max(0,Math.ceil((state.waitUntil-Date.now())/1000));const reason=state.waitReason||&#39;nextActionIn&#39;;let reasonStr=&#39;Next action in &#39;;if(reason===&#39;scanPause&#39;){reasonStr=&#39;Cooldown - &#39;;}else if(reason===&#39;cooldownIn&#39;){reasonStr=&#39;Retry - &#39;;}node.textContent=`${reasonStr}${remaining}s`;}function updateProgressDOM(){const root=document.querySelector(`#${APP_ID} [data-body]`);if(!root)return;const{current,total,label,note}=state.progress;const detailsEl=root.querySelector(&#39;.iu-status-details&#39;);if(detailsEl){if(state.mode===&#39;scanning&#39;){detailsEl.textContent=`${current} users scanned.`;}else if(state.mode===&#39;unfollowing&#39;){detailsEl.textContent=`@${escapeHTML(note || &#39;&#39;)} (${current} / ${total})`;}}const listEl=root.querySelector(&#39;[data-list]&#39;);if(listEl){const display=getDisplayUsers();listEl.innerHTML=renderUserList(display);const headerInfoEl=root.querySelector(&#39;.iu-list-header-info&#39;);if(headerInfoEl){headerInfoEl.textContent=`${display.length} non-followers found`;}const selectAllBtn=root.querySelector(&quot;[data-action=&#39;toggle-select-all&#39;]&quot;);if(selectAllBtn){selectAllBtn.textContent=isAllSelected()?&#39;Deselect All&#39;:&#39;Select All&#39;;}}if(state.minimized){const pillLabelEl=document.querySelector(`#${APP_ID} [data-pill-label]`);if(pillLabelEl){pillLabelEl.textContent=pillLabel();}}}function toast(message){const root=document.getElementById(APP_ID);if(!root)return;root.querySelector(&#39;.iu-toast&#39;)?.remove();if(toastTimer){clearTimeout(toastTimer);toastTimer=null;}const node=document.createElement(&#39;div&#39;);node.className=&#39;iu-toast&#39;;node.textContent=message;root.appendChild(node);toastTimer=setTimeout(()=&gt;{node.remove();toastTimer=null;},3500);}function clamp(value,min,max){return Math.min(Math.max(value,min),max);}function escapeHTML(value){return String(value??&#39;&#39;).replace(/[&amp;&lt;&gt;&quot;&#39;]/g,ch=&gt;({&#39;&amp;&#39;:&#39;&amp;amp;&#39;,&#39;&lt;&#39;:&#39;&amp;lt;&#39;,&#39;&gt;&#39;:&#39;&amp;gt;&#39;,&#39;&quot;&#39;:&#39;&amp;quot;&#39;,&quot;&#39;&quot;:&#39;&amp;#39;&#39;,})[ch]);}function escapeAttr(value){return escapeHTML(value);}function cleanupExisting(){if(typeof window.__tuCleanup===&#39;function&#39;){try{window.__tuCleanup();}catch{}}document.getElementById(APP_ID)?.remove();document.getElementById(STYLE_ID)?.remove();}function injectStyles(){if(!document.getElementById(&#39;tu-fonts&#39;)){const linkFonts=document.createElement(&#39;link&#39;);linkFonts.id=&#39;tu-fonts&#39;;linkFonts.rel=&#39;stylesheet&#39;;linkFonts.href=&#39;https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono&amp;display=swap&#39;;document.head.appendChild(linkFonts);}const style=document.createElement(&#39;style&#39;);style.id=STYLE_ID;style.textContent=CSS;document.head.appendChild(style);}function mount(){const root=document.createElement(&#39;div&#39;);root.id=APP_ID;document.body.appendChild(root);window.__tuCleanup=unmount;renderShell();}function unmount(){stopCountdown();if(toastTimer){clearTimeout(toastTimer);toastTimer=null;}document.getElementById(APP_ID)?.remove();document.getElementById(STYLE_ID)?.remove();if(window.__tuCleanup===unmount)window.__tuCleanup=null;}function renderShell(){const root=document.getElementById(APP_ID);if(!root)return;if(state.minimized){root.innerHTML=`
+        &lt;button class=&quot;iu-pill&quot; data-action=&quot;expand&quot; type=&quot;button&quot; aria-label=&quot;Expand&quot;&gt;
+          &lt;span class=&quot;iu-pill-dot ${pillStateClass()}&quot;&gt;&lt;/span&gt;
+          &lt;span data-pill-label&gt;${escapeHTML(pillLabel())}&lt;/span&gt;
+        &lt;/button&gt;
+      `;root.querySelector(&quot;[data-action=&#39;expand&#39;]&quot;)?.addEventListener(&#39;click&#39;,()=&gt;setMinimized(false));applyPanelPosition();return;}const fullscreenClass=state.fullscreen?&#39;iu-panel--fullscreen&#39;:&#39;&#39;;root.innerHTML=`
+      &lt;section class=&quot;iu-panel ${fullscreenClass}&quot; role=&quot;dialog&quot; aria-label=&quot;Threads Unfollowers&quot;&gt;
+        &lt;header class=&quot;iu-header&quot; data-drag&gt;
+          &lt;div class=&quot;iu-mac-controls&quot;&gt;
+            &lt;button type=&quot;button&quot; class=&quot;iu-mac-dot iu-mac-close&quot; data-action=&quot;close&quot; aria-label=&quot;Close&quot; title=&quot;Close&quot;&gt;${SVG.close}&lt;/button&gt;
+            &lt;button type=&quot;button&quot; class=&quot;iu-mac-dot iu-mac-minimize&quot; data-action=&quot;minimize&quot; aria-label=&quot;Minimize&quot; title=&quot;Minimize&quot;&gt;${SVG.minimize}&lt;/button&gt;
+            &lt;button type=&quot;button&quot; class=&quot;iu-mac-dot iu-mac-expand&quot; data-action=&quot;fullscreen&quot; aria-label=&quot;Fullscreen&quot; title=&quot;Fullscreen&quot;&gt;${SVG.expand}&lt;/button&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;iu-brand&quot;&gt;
+            &lt;div class=&quot;iu-brand-text&quot;&gt;
+              &lt;strong&gt;Threads Unfollowers&lt;/strong&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;iu-header-actions&quot;&gt;
+            ${state.mode !== &#39;settings&#39; &amp;&amp; state.mode !== &#39;scanning&#39; &amp;&amp; state.mode !== &#39;unfollowing&#39; ? `&lt;button type=&quot;button&quot;data-action=&quot;settings&quot;aria-label=&quot;Settings&quot;title=&quot;Settings&quot;&gt;${SVG.gear}&lt;/button&gt;
+            ` : &#39;&#39;}
+          &lt;/div&gt;&lt;/header&gt;
+        &lt;div class=&quot;iu-body&quot; data-body&gt;&lt;/div&gt;&lt;/section&gt;
+    `;
+    bindHeader(root);
+    bindDrag(root.querySelector(&#39;[data-drag]&#39;));
+    applyPanelPosition();
+    renderBody();
+  }
+
+  function bindHeader(root) {
+    root.querySelector(&quot;[data-action=&#39;close&#39;]&quot;)?.addEventListener(&#39;click&#39;, handleCloseClick);
+    root.querySelector(&quot;[data-action=&#39;minimize&#39;]&quot;)?.addEventListener(&#39;click&#39;, () =&gt; setMinimized(true));
+    root.querySelector(&quot;[data-action=&#39;fullscreen&#39;]&quot;)?.addEventListener(&#39;click&#39;, toggleFullscreen);
+    root.querySelector(&quot;[data-action=&#39;settings&#39;]&quot;)?.addEventListener(&#39;click&#39;, openSettings);
+  }
+
+  function handleCloseClick() {
+    if (state.mode === &#39;scanning&#39; || state.mode === &#39;unfollowing&#39;) {
+      if (confirm(&#39;An active process is running. Are you sure you want to stop it and exit?&#39;)) {
+        state.scanCancelled = true;
+        unmount();
+      }
+    } else {
+      unmount();
+    }
+  }
+
+  function toggleFullscreen() {
+    state.fullscreen = !state.fullscreen;
+    persist();
+    renderShell();
+  }
+
+  function openSettings() {
+    if (state.mode === &#39;scanning&#39; || state.mode === &#39;unfollowing&#39;) {
+      toast(&#39;Cannot modify settings while a process is running.&#39;);
+      return;
+    }
+    state.prevMode = state.mode;
+    state.mode = &#39;settings&#39;;
+    renderBody();
+  }
+
+  function applyPanelPosition() {
+    const root = document.getElementById(APP_ID);
+    if (!root) return;
+    const node = root.querySelector(&#39;.iu-panel&#39;) || root.querySelector(&#39;.iu-pill&#39;);
+    if (!node) return;
+
+    if (state.fullscreen &amp;&amp; !state.minimized) {
+      node.style.left = &#39;&#39;;
+      node.style.top = &#39;&#39;;
+      node.style.right = &#39;&#39;;
+      node.style.bottom = &#39;&#39;;
+      return;
+    }
+
+    const pos = state.panelPos;
+    if (pos &amp;&amp; Number.isFinite(pos.x) &amp;&amp; Number.isFinite(pos.y)) {
+      const max = panelBounds(node);
+      node.style.left = clamp(pos.x, 0, max.x) + &#39;px&#39;;
+      node.style.top = clamp(pos.y, 0, max.y) + &#39;px&#39;;
+      node.style.right = &#39;auto&#39;;
+      node.style.bottom = &#39;auto&#39;;
+    } else {
+      node.style.left = &#39;auto&#39;;
+      node.style.top = &#39;auto&#39;;
+      node.style.right = PANEL_MARGIN + &#39;px&#39;;
+      node.style.bottom = PANEL_MARGIN + &#39;px&#39;;
+    }
+  }
+
+  function panelBounds(node) {
+    const rect = node.getBoundingClientRect();
+    return {
+      x: Math.max(0, window.innerWidth - rect.width),
+      y: Math.max(0, window.innerHeight - rect.height),
+    };
+  }
+
+  function bindDrag(handle) {
+    if (!handle) return;
+    const panel = handle.closest(&#39;.iu-panel&#39;);
+    if (!panel) return;
+    let startX = 0;
+    let startY = 0;
+    let originX = 0;
+    let originY = 0;
+    let dragging = false;
+
+    handle.addEventListener(&#39;pointerdown&#39;, event =&gt; {
+      if (event.target.closest(&#39;button&#39;)) return;
+      if (state.fullscreen) return;
+      dragging = true;
+      const rect = panel.getBoundingClientRect();
+      originX = rect.left;
+      originY = rect.top;
+      startX = event.clientX;
+      startY = event.clientY;
+      panel.style.left = originX + &#39;px&#39;;
+      panel.style.top = originY + &#39;px&#39;;
+      panel.style.right = &#39;auto&#39;;
+      panel.style.bottom = &#39;auto&#39;;
+      handle.setPointerCapture(event.pointerId);
+      handle.classList.add(&#39;iu-dragging&#39;);
+    });
+
+    handle.addEventListener(&#39;pointermove&#39;, event =&gt; {
+      if (!dragging) return;
+      const max = panelBounds(panel);
+      const x = clamp(originX + (event.clientX - startX), 0, max.x);
+      const y = clamp(originY + (event.clientY - startY), 0, max.y);
+      panel.style.left = x + &#39;px&#39;;
+      panel.style.top = y + &#39;px&#39;;
+    });
+
+    const stop = event =&gt; {
+      if (!dragging) return;
+      dragging = false;
+      handle.releasePointerCapture?.(event.pointerId);
+      handle.classList.remove(&#39;iu-dragging&#39;);
+      const rect = panel.getBoundingClientRect();
+      state.panelPos = { x: rect.left, y: rect.top };
+      persist();
+    };
+    handle.addEventListener(&#39;pointerup&#39;, stop);
+    handle.addEventListener(&#39;pointercancel&#39;, stop);
+  }
+
+  const CSS = `
+    #${APP_ID}, #${APP_ID} * { box-sizing: border-box; }
+    #${APP_ID} {
+      --iu-bg: rgba(19, 19, 19, 0.75);
+      --iu-bg-card: rgba(10, 10, 10, 0.7);
+      --iu-bg-hover: rgba(255, 255, 255, 0.06);
+      --iu-line: rgba(255, 255, 255, 0.08);
+      --iu-line-strong: rgba(255, 255, 255, 0.16);
+      --iu-text: #e5e2e1;
+      --iu-muted: #bfc7d4;
+      --iu-primary: #0095f6;
+      --iu-primary-dim: #9ecaff;
+      --iu-danger: #ffb4ab;
+      --iu-danger-container: #93000a;
+      
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2147483647;
+      color: var(--iu-text);
+      font-family: &#39;Inter&#39;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;
+    }
+    #${APP_ID} &gt; * { pointer-events: auto; }
+    #${APP_ID} button, #${APP_ID} input, #${APP_ID} a { font: inherit; color: inherit; }
+    #${APP_ID} a { text-decoration: none; }
+    #${APP_ID} button { cursor: pointer; }
+
+    #${APP_ID} .iu-panel {
+      position: absolute;
+      width: 390px;
+      height: 680px;
+      max-width: calc(100vw - 24px);
+      max-height: calc(100vh - 24px);
+      display: flex;
+      flex-direction: column;
+      background: var(--iu-bg);
+      border: 1px solid var(--iu-line);
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
+      overflow: hidden;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      animation: iu-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes iu-pop {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    #${APP_ID} .iu-panel.iu-panel--fullscreen {
+      width: calc(100vw - 40px) !important;
+      height: calc(100vh - 40px) !important;
+      max-width: none !important;
+      max-height: none !important;
+      left: 20px !important;
+      top: 20px !important;
+      right: 20px !important;
+      bottom: 20px !important;
+    }
+
+    #${APP_ID} .iu-header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 48px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--iu-line);
+      cursor: grab;
+      user-select: none;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+    }
+    #${APP_ID} .iu-header.iu-dragging { cursor: grabbing; }
+
+    #${APP_ID} .iu-mac-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 60px;
+    }
+    #${APP_ID} .iu-mac-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      outline: none;
+      position: relative;
+    }
+    #${APP_ID} .iu-mac-dot svg {
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    #${APP_ID} .iu-mac-controls:hover .iu-mac-dot svg {
+      opacity: 1;
+    }
+    #${APP_ID} .iu-mac-close { background-color: #FF5F57; }
+    #${APP_ID} .iu-mac-minimize { background-color: #FEBC2E; }
+    #${APP_ID} .iu-mac-expand { background-color: #28C840; }
+
+    #${APP_ID} .iu-brand {
+      flex: 1;
+      text-align: center;
+      min-width: 0;
+    }
+    #${APP_ID} .iu-brand-text strong {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    #${APP_ID} .iu-header-actions {
+      display: flex;
+      justify-content: flex-end;
+      width: 60px;
+    }
+    #${APP_ID} .iu-header-actions button {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      color: var(--iu-muted);
+      transition: background 0.15s, color 0.15s;
+    }
+    #${APP_ID} .iu-header-actions button:hover {
+      background: var(--iu-bg-hover);
+      color: var(--iu-text);
+    }
+
+    #${APP_ID} .iu-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #131313;
+    }
+
+    /*Welcome/Entry screen*/
+    #${APP_ID} .iu-welcome {
+      padding: 24px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex: 1;
+    }
+    #${APP_ID} .iu-welcome-icon {
+      width: 80px;
+      height: 80px;
+      display: grid;
+      place-items: center;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--iu-line);
+      color: var(--iu-primary-dim);
+      box-shadow: 0 0 20px rgba(158, 202, 255, 0.2);
+    }
+    #${APP_ID} .iu-welcome-icon svg {
+      width: 40px;
+      height: 40px;
+    }
+    #${APP_ID} .iu-welcome-icon--error {
+      background: rgba(255, 48, 64, 0.08);
+      border-color: rgba(255, 48, 64, 0.2);
+      color: var(--iu-danger);
+      box-shadow: 0 10px 25px rgba(255, 48, 64, 0.15);
+    }
+    #${APP_ID} .iu-welcome-text h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+    #${APP_ID} .iu-welcome-description {
+      margin: 8px auto 0;
+      color: var(--iu-muted);
+      font-size: 13px;
+      max-width: 290px;
+      line-height: 1.5;
+      opacity: 0.8;
+    }
+    #${APP_ID} .iu-btn-welcome {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      color: #000000;
+      padding: 12px 32px;
+      border-radius: 9999px;
+      font-size: 16px;
+      font-weight: 700;
+      outline: none;
+      border: none;
+    }
+    #${APP_ID} .iu-btn-welcome:active {
+      transform: scale(0.95);
+    }
+
+    /*Status Card styling*/
+    #${APP_ID} .iu-status-card {
+      margin: 8px 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--iu-line);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #${APP_ID} .iu-status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #${APP_ID} .iu-status-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #${APP_ID} .iu-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--iu-muted);
+    }
+    #${APP_ID} .iu-status-dot--active {
+      background: var(--iu-success);
+      animation: iu-pulse 1.4s infinite;
+    }
+    #${APP_ID} .iu-status-dot--stopped {
+      background: var(--iu-danger);
+    }
+    #${APP_ID} .iu-status-dot--completed {
+      background: var(--iu-primary-dim);
+    }
+    #${APP_ID} .iu-status-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--iu-text);
+    }
+    #${APP_ID} .iu-status-right {
+      font-size: 12px;
+      font-family: &#39;JetBrains Mono&#39;, monospace;
+      color: var(--iu-muted);
+      opacity: 0.8;
+    }
+    #${APP_ID} .iu-status-details-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 6px;
+    }
+    #${APP_ID} .iu-status-details {
+      font-size: 12px;
+      font-family: &#39;JetBrains Mono&#39;, monospace;
+      color: var(--iu-muted);
+    }
+    #${APP_ID} .iu-status-btn-stop {
+      background: rgba(255, 48, 64, 0.2);
+      color: var(--iu-danger);
+      border: 1px solid rgba(255, 48, 64, 0.3);
+      font-size: 8px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    #${APP_ID} .iu-status-btn-stop:hover {
+      background: rgba(255, 48, 64, 0.35);
+      transform: translateY(-1px);
+    }
+    #${APP_ID} .iu-status-btn-stop:active {
+      transform: scale(0.95);
+    }
+    #${APP_ID} .iu-status-btn-reload {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--iu-muted);
+      border: 1px solid var(--iu-line);
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+      outline: none;
+      padding: 0;
+    }
+    #${APP_ID} .iu-status-btn-reload:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--iu-text);
+      transform: rotate(30deg);
+    }
+    #${APP_ID} .iu-status-btn-reload:active {
+      transform: scale(0.92);
+    }
+    @keyframes iu-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(40, 200, 64, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(40, 200, 64, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(40, 200, 64, 0); }
+    }
+
+    /*Results layout*/
+    #${APP_ID} .iu-results {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    #${APP_ID} .iu-filter-section {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin: 0 12px 8px;
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: var(--iu-bg-card);
+      border: 1px solid var(--iu-line);
+      backdrop-filter: blur(20px);
+    }
+    #${APP_ID} .iu-filter-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--iu-text);
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    #${APP_ID} .iu-filter-verified:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    #${APP_ID} .iu-filter-verified--active {
+      background: rgba(0, 149, 246, 0.15);
+      border-color: rgba(0, 149, 246, 0.4);
+      color: #0095f6;
+    }
+    #${APP_ID} .iu-filter-verified svg {
+      width: 12px !important;
+      height: 12px !important;
+      vertical-align: middle;
+      margin: 0;
+    }
+
+    #${APP_ID} .iu-list-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      margin-bottom: 2px;
+      border-bottom: 1px solid var(--iu-line);
+    }
+    #${APP_ID} .iu-select-all-btn {
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: var(--iu-primary);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      outline: none;
+      transition: opacity 0.2s;
+    }
+    #${APP_ID} .iu-select-all-btn:hover {
+      opacity: 0.8;
+    }
+    #${APP_ID} .iu-list-header-info {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--iu-muted);
+      font-weight: 700;
+      opacity: 0.8;
+      line-height: 1.2;
+    }
+
+    #${APP_ID} .iu-list {
+      flex: 1 1 auto;
+      min-height: 100px;
+      overflow-y: auto;
+      border-bottom: 1px solid var(--iu-line);
+      padding-bottom: 80px;
+    }
+    #${APP_ID} .iu-list-empty {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--iu-muted);
+      font-size: 14px;
+    }
+
+    #${APP_ID} .iu-row {
+      display: grid;
+      grid-template-columns: 18px 40px 1fr;
+      gap: 12px;
+      padding: 8px 12px;
+      margin: 6px 12px;
+      align-items: center;
+      border: 1px solid var(--iu-line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.015);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    #${APP_ID} .iu-row:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--iu-line-strong);
+    }
+
+    /*Custom Checkbox*/
+    #${APP_ID} .iu-row-checkbox {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    #${APP_ID} .iu-row-checkbox input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      margin: 0;
+    }
+    #${APP_ID} .iu-checkbox-custom {
+      display: inline-grid;
+      place-items: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.3);
+      background: transparent;
+      color: #fff;
+      transition: all 0.15s;
+    }
+    #${APP_ID} .iu-row-checkbox input:checked + .iu-checkbox-custom {
+      background-color: var(--iu-primary);
+      border-color: var(--iu-primary);
+    }
+    #${APP_ID} .iu-checkbox-custom svg {
+      width: 10px;
+      height: 10px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    #${APP_ID} .iu-row-checkbox input:checked + .iu-checkbox-custom svg {
+      opacity: 1;
+    }
+
+    #${APP_ID} .iu-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.05);
+      object-fit: cover;
+      background: rgba(255,255,255,0.05);
+    }
+
+    #${APP_ID} .iu-row-text { min-width: 0; }
+    #${APP_ID} .iu-row-name-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #${APP_ID} .iu-row-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--iu-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #${APP_ID} .iu-row-name a { color: var(--iu-text); }
+    #${APP_ID} .iu-row-name a:hover { text-decoration: underline; }
+    #${APP_ID} .iu-row-sub {
+      font-size: 12px;
+      font-family: &#39;JetBrains Mono&#39;, monospace;
+      color: var(--iu-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0.8;
+    }
+
+    /*Floating Action Button(FAB)*/
+    #${APP_ID} .iu-fab-container {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 50;
+    }
+    #${APP_ID} .iu-fab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: #ffffff;
+      color: #000000;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
+      transition: all 0.2s;
+    }
+    #${APP_ID} .iu-fab-btn:hover:not(:disabled) {
+      background: #f5f5f5;
+      transform: translateY(-2px);
+      box-shadow: 0px 6px 16px rgba(0,0,0,0.6);
+    }
+    #${APP_ID} .iu-fab-btn:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+    #${APP_ID} .iu-fab-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /*Settings Screen styling*/
+    #${APP_ID} .iu-settings {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+    #${APP_ID} .iu-settings-head {
+      padding: 16px;
+      border-bottom: 1px solid var(--iu-line);
+      position: relative;
+    }
+    #${APP_ID} .iu-settings-head h2 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--iu-text);
+    }
+    #${APP_ID} .iu-settings-head p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--iu-muted);
+      opacity: 0.8;
+    }
+    #${APP_ID} .iu-reset-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--iu-primary-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: opacity 0.2s;
+    }
+    #${APP_ID} .iu-reset-btn:hover {
+      opacity: 0.8;
+    }
+    
+    #${APP_ID} .iu-settings-form {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    #${APP_ID} .iu-settings-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    #${APP_ID} .iu-settings-section-header h3 {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--iu-muted);
+      letter-spacing: 0.05em;
+    }
+    #${APP_ID} .iu-settings-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    #${APP_ID} .iu-settings-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #${APP_ID} .iu-settings-label-row label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--iu-text);
+    }
+    #${APP_ID} .iu-settings-label-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    #${APP_ID} .iu-settings-badge-green {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--iu-primary-dim);
+    }
+    #${APP_ID} .iu-settings-val {
+      font-size: 13px;
+      font-family: &#39;JetBrains Mono&#39;, monospace;
+      color: var(--iu-primary-dim);
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 149, 246, 0.1);
+    }
+    #${APP_ID} .iu-settings-help {
+      margin: 0;
+      font-size: 12px;
+      font-family: &#39;JetBrains Mono&#39;, monospace;
+      color: var(--iu-muted);
+      opacity: 0.6;
+    }
+
+    #${APP_ID} .iu-settings-num-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #${APP_ID} .iu-settings-num-input-wrapper input {
+      width: 80px;
+      height: 28px;
+      background: #050505;
+      border: 1px solid var(--iu-line);
+      border-radius: 6px;
+      color: var(--iu-primary-dim);
+      font-family: &#39;JetBrains Mono&#39;, monospace;
+      text-align: right;
+      padding: 0 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #${APP_ID} .iu-settings-num-input-wrapper input:focus {
+      border-color: var(--iu-primary);
+    }
+    #${APP_ID} .iu-settings-num-input-wrapper span {
+      font-size: 13px;
+      font-family: &#39;JetBrains Mono&#39;, monospace;
+      color: var(--iu-muted);
+    }
+
+    /*Range slider custom styling*/
+    #${APP_ID} input[type=&quot;range&quot;] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+      margin: 0;
+    }
+    #${APP_ID} input[type=&quot;range&quot;]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      background: #353534;
+      border-radius: 2px;
+    }
+    #${APP_ID} input[type=&quot;range&quot;]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: var(--iu-primary-dim);
+      cursor: pointer;
+      margin-top: -6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      transition: transform 0.1s;
+    }
+    #${APP_ID} input[type=&quot;range&quot;]::-webkit-slider-thumb:active {
+      transform: scale(1.15);
+    }
+
+    #${APP_ID} .iu-settings-actions {
+      padding: 12px;
+      border-top: 1px solid var(--iu-line);
+      display: flex;
+      gap: 12px;
+    }
+    #${APP_ID} .iu-btn-save {
+      flex: 1;
+      height: 40px;
+      background: #ffffff;
+      color: #000000;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    #${APP_ID} .iu-btn-save:hover {
+      background: #e5e5e5;
+    }
+    #${APP_ID} .iu-btn-save:active {
+      transform: scale(0.98);
+    }
+    #${APP_ID} .iu-btn-discard {
+      flex: 1;
+      height: 40px;
+      background: transparent;
+      border: 1px solid var(--iu-line);
+      color: var(--iu-text);
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    #${APP_ID} .iu-btn-discard:hover {
+      background: var(--iu-bg-hover);
+    }
+    #${APP_ID} .iu-btn-discard:active {
+      transform: scale(0.98);
+    }
+
+    /*Scrollbar styling*/
+    #${APP_ID} .iu-list::-webkit-scrollbar,
+    #${APP_ID} .iu-settings-form::-webkit-scrollbar {
+      width: 4px;
+    }
+    #${APP_ID} .iu-list::-webkit-scrollbar-track,
+    #${APP_ID} .iu-settings-form::-webkit-scrollbar-track {
+      background: #131313;
+    }
+    #${APP_ID} .iu-list::-webkit-scrollbar-thumb,
+    #${APP_ID} .iu-settings-form::-webkit-scrollbar-thumb {
+      background: #353534;
+      border-radius: 10px;
+    }
+
+    /*Toast notification*/
+    #${APP_ID} .iu-toast {
+      position: absolute;
+      left: 50%;
+      bottom: 84px;
+      transform: translateX(-50%);
+      padding: 8px 16px;
+      background: rgba(25, 25, 25, 0.95);
+      border: 1px solid var(--iu-line-strong);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      pointer-events: none;
+      z-index: 100;
+      animation: iu-toast-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes iu-toast-pop {
+      from { opacity: 0; transform: translate(-50%, 8px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /*Floating pill styling*/
+    #${APP_ID} .iu-pill {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--iu-bg);
+      border: 1px solid var(--iu-line);
+      color: var(--iu-text);
+      border-radius: 999px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      pointer-events: auto;
+      animation: iu-pop 0.18s ease-out;
+    }
+    #${APP_ID} .iu-pill:hover { background: var(--iu-bg-hover); }
+    #${APP_ID} .iu-pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--iu-muted);
+    }
+    #${APP_ID} .iu-pill-dot--active {
+      background: var(--iu-success);
+      animation: iu-pulse 1.4s infinite;
+    }
+    #${APP_ID} .iu-pill-dot--error {
+      background: var(--iu-danger);
+    }
+
+    /*Fullscreen Responsive layout override*/
+    #${APP_ID} .iu-panel.iu-panel--fullscreen .iu-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-auto-rows: min-content;
+      align-content: start;
+      gap: 12px;
+      padding: 16px 16px 80px;
+      max-height: none;
+      flex: 1 1 auto;
+    }
+    #${APP_ID} .iu-panel.iu-panel--fullscreen .iu-row {
+      margin: 0;
+      height: 56px;
+    }
+    #${APP_ID} .iu-panel.iu-panel--fullscreen .iu-avatar {
+      width: 40px;
+      height: 40px;
+    }
+    #${APP_ID} .iu-panel.iu-panel--fullscreen .iu-row-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    @media (max-width: 480px) {
+      #${APP_ID} .iu-panel {
+        width: calc(100vw - 16px) !important;
+        max-height: calc(100vh - 16px) !important;
+        left: 8px !important;
+        right: 8px !important;
+        top: 8px !important;
+        bottom: 8px !important;
+      }
+      #${APP_ID} .iu-list { max-height: none; flex: 1 1 auto; }
+    }
+  `;
+
+  cleanupExisting();
+  injectStyles();
+  mount();
+})();</pre></div>
+    </div>
+
+    <div class="hero-actions">
+      <button class="btn btn-primary" id="heroCopyBtn">Copy the script</button>
+      <a class="btn btn-secondary" href="#how-it-works">How it works</a>
+    </div>
+  </section>
+
+  <section id="how-it-works">
+    <h2><span class="num">01</span>How it works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-index">A</div>
+        <div class="step-body">
+          <h3>Open Threads in your browser</h3>
+          <p>Works on <a href="https://www.threads.com" target="_blank" rel="noopener">threads.com</a> in any desktop browser — Chrome, Firefox, Edge, Brave. You need to already be logged in.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-index">B</div>
+        <div class="step-body">
+          <h3>Open the developer console</h3>
+          <p>Press <code>F12</code>, or right-click anywhere on the page and choose <strong>Inspect</strong>, then open the <strong>Console</strong> tab.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-index">C</div>
+        <div class="step-body">
+          <h3>Paste the script and press Enter</h3>
+          <p>Copy the minified script above, paste it into your browser console on Threads, and press Enter. A sleek interactive control panel will open on your page.</p>
+          <div class="step-image-container">
+            <img src="assets/scan-now.png" alt="Threads Unfollowers panel welcome screen" class="step-img" />
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-index">D</div>
+        <div class="step-body">
+          <h3>Scan and manage unfollowers</h3>
+          <p>Click "Scan Now" to retrieve accounts that don't follow you back. Select non-followers and safely unfollow them with custom timing intervals directly from the dashboard.</p>
+          <div class="step-image-container">
+            <img src="assets/scanning.png" alt="Threads Unfollowers panel scan results" class="step-img" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span>What it does</h2>
+    <div class="card does">
+      <h3>Features</h3>
+      <ul>
+        <li>Runs locally, inside your own browser tab</li>
+        <li>Reads your following list safely using your existing session</li>
+        <li>Displays a beautiful interactive control panel directly on your page</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span>Questions</h2>
+
+    <details>
+      <summary>Does this script send my Threads data anywhere?</summary>
+      <p>No. It runs entirely inside your own browser tab, using your already-logged-in session. Nothing is sent to any server — not ours, not anyone else's.</p>
+    </details>
+    <details>
+      <summary>Will this get my account flagged or banned?</summary>
+      <p>The script only reads your following list — it doesn't automate follows, unfollows, or likes. That carries about the same risk as browsing the page normally. Tools that auto-unfollow at scale carry more risk; this isn't one of those.</p>
+    </details>
+    <details>
+      <summary>Do I need to install an extension or create an account?</summary>
+      <p>No. There's nothing to install and no account to create. You copy a script and paste it into your browser's built-in developer console.</p>
+    </details>
+    <details>
+      <summary>Someone I know unfollowed me but didn't show up. Why?</summary>
+      <p>The script reads your live following list at the moment you run it. If you've already unfollowed someone yourself, they won't appear in the results.</p>
+    </details>
+    <details>
+      <summary>Does it unfollow people for me?</summary>
+      <p>No. It only generates a list. Unfollowing anyone on that list is a manual decision you make and carry out yourself.</p>
+    </details>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; width:100%; flex-wrap:wrap; gap:12px;">
+    <span>built by <a href="https://github.com/bakiun" target="_blank" rel="noopener">@bakiun</a></span>
+    <span><a href="https://github.com/bakiun/threads-unfollowers" target="_blank" rel="noopener">source on GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+  async function copyScript(btn) {
+    const original = btn.textContent;
+    try {
+      const codeBox = document.getElementById("codeBox");
+      const text = codeBox.textContent;
+      await navigator.clipboard.writeText(text);
+    } catch (e) {
+      window.open("https://github.com/bakiun/threads-unfollowers", "_blank");
+      return;
+    }
+    btn.textContent = "Copied!";
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove("copied");
+    }, 1800);
+  }
+
+  document.getElementById("heroCopyBtn").addEventListener("click", (e) => copyScript(e.currentTarget));
+</script>
+
+</body>
+</html>
